@@ -6,71 +6,391 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>794</width>
-    <height>592</height>
+    <width>800</width>
+    <height>591</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Main window</string>
+   <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="verticalLayoutWidget">
+   <widget class="QLabel" name="logoPicture">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>791</width>
-      <height>541</height>
+      <width>71</width>
+      <height>71</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap>MainWindow GUI/JofLangIcon.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="categoryName">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>29</y>
+      <width>161</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Название категории</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>340</x>
+      <y>30</y>
+      <width>121</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
      </property>
      <item>
-      <widget class="QLabel" name="hello_world">
-       <property name="font">
-        <font>
-         <pointsize>20</pointsize>
-        </font>
+      <widget class="QLabel" name="runButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
        </property>
        <property name="text">
-        <string>Hello world!</string>
+        <string/>
        </property>
-       <property name="textFormat">
-        <enum>Qt::AutoText</enum>
+       <property name="pixmap">
+        <pixmap>MainWindow GUI/Run.svg</pixmap>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
+       <property name="scaledContents">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="one_button">
-       <property name="font">
-        <font>
-         <pointsize>28</pointsize>
-        </font>
+      <widget class="QLabel" name="bugButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
        </property>
        <property name="text">
-        <string>One Button</string>
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>MainWindow GUI/Debug.svg</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="stopButton">
+       <property name="minimumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>30</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>MainWindow GUI/Stop.svg</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
+   <widget class="QTableView" name="tableView_3">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>70</y>
+      <width>341</width>
+      <height>491</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView_4">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>70</y>
+      <width>231</width>
+      <height>241</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView_5">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>310</y>
+      <width>231</width>
+      <height>251</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView_6">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>560</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView_7">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>560</y>
+      <width>341</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView_8">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>560</y>
+      <width>231</width>
+      <height>31</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QTableWidget" name="categoriesList">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>70</y>
+      <width>71</width>
+      <height>521</height>
+     </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>71</width>
+      <height>521</height>
+     </size>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
+    <property name="showGrid">
+     <bool>true</bool>
+    </property>
+    <property name="wordWrap">
+     <bool>true</bool>
+    </property>
+    <property name="cornerButtonEnabled">
+     <bool>true</bool>
+    </property>
+    <row>
+     <property name="text">
+      <string>Math</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>MainWindow GUI/Operators.svg</normaloff>MainWindow GUI/Operators.svg</iconset>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Ifs</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>MainWindow GUI/Control_2.svg</normaloff>MainWindow GUI/Control_2.svg</iconset>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Fors</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>MainWindow GUI/Control_1.svg</normaloff>MainWindow GUI/Control_1.svg</iconset>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Schema</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>MainWindow GUI/Schema.svg</normaloff>MainWindow GUI/Schema.svg</iconset>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Variables</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>MainWindow GUI/Variable.svg</normaloff>MainWindow GUI/Variable.svg</iconset>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Special</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>MainWindow GUI/Special.svg</normaloff>MainWindow GUI/Special.svg</iconset>
+     </property>
+    </row>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>70</y>
+      <width>161</width>
+      <height>491</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="helpBarButton">
+    <property name="geometry">
+     <rect>
+      <x>264</x>
+      <y>0</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Minimum" vsizetype="MinimumExpanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Помощь</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="executeBarButton">
+    <property name="geometry">
+     <rect>
+      <x>133</x>
+      <y>0</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Выполнение</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="optionsBarButton">
+    <property name="geometry">
+     <rect>
+      <x>214</x>
+      <y>0</y>
+      <width>50</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Опции</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="fileBarButton">
+    <property name="geometry">
+     <rect>
+      <x>75</x>
+      <y>0</y>
+      <width>58</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Файл</string>
+    </property>
+   </widget>
+   <zorder>logoPicture</zorder>
+   <zorder>categoryName</zorder>
+   <zorder>horizontalLayoutWidget</zorder>
+   <zorder>tableView_3</zorder>
+   <zorder>tableView_4</zorder>
+   <zorder>tableView_5</zorder>
+   <zorder>tableView_6</zorder>
+   <zorder>tableView_7</zorder>
+   <zorder>tableView_8</zorder>
+   <zorder>tableWidget_2</zorder>
+   <zorder>categoriesList</zorder>
+   <zorder>helpBarButton</zorder>
+   <zorder>executeBarButton</zorder>
+   <zorder>optionsBarButton</zorder>
+   <zorder>fileBarButton</zorder>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>794</width>
-     <height>26</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>
