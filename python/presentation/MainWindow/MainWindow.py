@@ -8,7 +8,7 @@ def execute():
     ui.setupUi(MainWindow)
 
     # На label ui.runButton навешиваем обработчик события нажатия
-    # ui.runButton.clicked.connect(lambda: print('Hello, World!'))
+    ui.runButton.clicked.connect(lambda: print('Hello, World!'))
 
     MainWindow.show()
     sys.exit(app.exec())

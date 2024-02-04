@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1001</width>
-    <height>639</height>
+    <width>883</width>
+    <height>564</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -65,7 +65,7 @@
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/JofLangIcon.png</pixmap>
+         <pixmap>../Documents/GitHub/JofLangIDE/resources/icons/JofLangIcon.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>
@@ -322,7 +322,7 @@
              <enum>QLayout::SetFixedSize</enum>
             </property>
             <item>
-             <widget class="QLabel" name="runButton">
+             <widget class="QPushButton" name="runButton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -335,19 +335,26 @@
                 <height>25</height>
                </size>
               </property>
+              <property name="styleSheet">
+               <string notr="true">background: none; border: none;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
-              <property name="pixmap">
-               <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Run.svg</pixmap>
+              <property name="icon">
+               <iconset>
+                <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Run.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Run.svg</iconset>
               </property>
-              <property name="scaledContents">
-               <bool>true</bool>
+              <property name="iconSize">
+               <size>
+                <width>25</width>
+                <height>25</height>
+               </size>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="bugButton">
+             <widget class="QPushButton" name="debugButton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -360,19 +367,26 @@
                 <height>25</height>
                </size>
               </property>
+              <property name="styleSheet">
+               <string notr="true">background: none; border: none;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
-              <property name="pixmap">
-               <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Debug.svg</pixmap>
+              <property name="icon">
+               <iconset>
+                <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Debug.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Debug.svg</iconset>
               </property>
-              <property name="scaledContents">
-               <bool>true</bool>
+              <property name="iconSize">
+               <size>
+                <width>25</width>
+                <height>25</height>
+               </size>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="stopButton">
+             <widget class="QPushButton" name="stopButton">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -385,14 +399,21 @@
                 <height>25</height>
                </size>
               </property>
+              <property name="styleSheet">
+               <string notr="true">background: none; border: none;</string>
+              </property>
               <property name="text">
                <string/>
               </property>
-              <property name="pixmap">
-               <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Stop.svg</pixmap>
+              <property name="icon">
+               <iconset>
+                <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Stop.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Stop.svg</iconset>
               </property>
-              <property name="scaledContents">
-               <bool>true</bool>
+              <property name="iconSize">
+               <size>
+                <width>25</width>
+                <height>25</height>
+               </size>
               </property>
              </widget>
             </item>
@@ -493,7 +514,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>61</width>
+            <width>62</width>
             <height>431</height>
            </rect>
           </property>
@@ -509,18 +530,12 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="VariablesCategoryLogo">
+                <widget class="QPushButton" name="VariablesCategoryButton">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
                  </property>
                  <property name="maximumSize">
                   <size>
@@ -528,20 +543,33 @@
                    <height>50</height>
                   </size>
                  </property>
-                 <property name="acceptDrops">
-                  <bool>false</bool>
+                 <property name="font">
+                  <font>
+                   <stylestrategy>NoAntialias</stylestrategy>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::StrongFocus</enum>
+                 </property>
+                 <property name="accessibleName">
+                  <string/>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background: none; border: none;</string>
                  </property>
                  <property name="text">
                   <string/>
                  </property>
-                 <property name="pixmap">
-                  <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Variable.svg</pixmap>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Variable.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Variable.svg</iconset>
                  </property>
-                 <property name="scaledContents">
-                  <bool>true</bool>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -586,33 +614,40 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="OperationsCategoryLogo">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
-                 </property>
+                <widget class="QPushButton" name="OperationsCategoryButton">
                  <property name="maximumSize">
                   <size>
                    <width>50</width>
                    <height>50</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <stylestrategy>NoAntialias</stylestrategy>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::StrongFocus</enum>
+                 </property>
+                 <property name="accessibleName">
+                  <string/>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background: none; border: none;</string>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
-                 <property name="pixmap">
-                  <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Operators.svg</pixmap>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Operators.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Operators.svg</iconset>
                  </property>
-                 <property name="scaledContents">
-                  <bool>true</bool>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -654,33 +689,40 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="ControlCategoryLogo">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
-                 </property>
+                <widget class="QPushButton" name="ControlCategoryButton">
                  <property name="maximumSize">
                   <size>
                    <width>50</width>
                    <height>50</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <stylestrategy>NoAntialias</stylestrategy>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::StrongFocus</enum>
+                 </property>
+                 <property name="accessibleName">
+                  <string/>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background: none; border: none;</string>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
-                 <property name="pixmap">
-                  <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Control_2.svg</pixmap>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Control.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Control.svg</iconset>
                  </property>
-                 <property name="scaledContents">
-                  <bool>true</bool>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -725,18 +767,12 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="Control2CategoryLogo">
+                <widget class="QPushButton" name="Control2CategoryButton">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
                  </property>
                  <property name="maximumSize">
                   <size>
@@ -744,14 +780,33 @@
                    <height>50</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <stylestrategy>NoAntialias</stylestrategy>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::StrongFocus</enum>
+                 </property>
+                 <property name="accessibleName">
+                  <string/>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background: none; border: none;</string>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
-                 <property name="pixmap">
-                  <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Control_1.svg</pixmap>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Control_1.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Control_1.svg</iconset>
                  </property>
-                 <property name="scaledContents">
-                  <bool>true</bool>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -799,39 +854,40 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="SchemaCategoryLogo">
-                 <property name="enabled">
-                  <bool>true</bool>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
-                 </property>
+                <widget class="QPushButton" name="SchemaCategoryButton">
                  <property name="maximumSize">
                   <size>
                    <width>50</width>
                    <height>50</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <stylestrategy>NoAntialias</stylestrategy>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::StrongFocus</enum>
+                 </property>
+                 <property name="accessibleName">
+                  <string/>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background: none; border: none;</string>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
-                 <property name="pixmap">
-                  <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Schema.svg</pixmap>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Schema.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Schema.svg</iconset>
                  </property>
-                 <property name="scaledContents">
-                  <bool>true</bool>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -876,18 +932,12 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="SpecialCategoryLogo">
+                <widget class="QPushButton" name="SpecialCategoryButton">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>50</height>
-                  </size>
                  </property>
                  <property name="maximumSize">
                   <size>
@@ -895,14 +945,33 @@
                    <height>50</height>
                   </size>
                  </property>
+                 <property name="font">
+                  <font>
+                   <stylestrategy>NoAntialias</stylestrategy>
+                   <kerning>true</kerning>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::StrongFocus</enum>
+                 </property>
+                 <property name="accessibleName">
+                  <string/>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background: none; border: none;</string>
+                 </property>
                  <property name="text">
                   <string/>
                  </property>
-                 <property name="pixmap">
-                  <pixmap>../../../Работа/Рабочая помойка/MainWindow GUI/Special.svg</pixmap>
+                 <property name="icon">
+                  <iconset>
+                   <normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Special.svg</normaloff>../Documents/GitHub/JofLangIDE/resources/icons/Special.svg</iconset>
                  </property>
-                 <property name="scaledContents">
-                  <bool>true</bool>
+                 <property name="iconSize">
+                  <size>
+                   <width>50</width>
+                   <height>50</height>
+                  </size>
                  </property>
                 </widget>
                </item>
@@ -1317,7 +1386,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
+             <y>-423</y>
              <width>100000</width>
              <height>100000</height>
             </rect>
