@@ -7,6 +7,7 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtWidgets import QWidget, QPushButton, QLabel
 
 from run import paths
 
@@ -503,6 +504,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_6.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetNoConstraint)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
+
         self.Block_1 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -666,6 +668,12 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setSizePolicy(sizePolicy)
         self.scrollAreaWidgetContents.setMinimumSize(QtCore.QSize(250, 250))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+
+        # self.scrollAreaWidgetContents.label = QLabel("bruh")
+        # self.scrollAreaWidgetContents.label.setGeometry(0, 0, 150, 150)
+        # self.scrollAreaWidgetContents.label.show()
+        # self.scrollAreaWidgetContents.label.setParent(self.scrollAreaWidgetContents)
+
         self.block_constructor.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout_3.addWidget(self.block_constructor)
         self.tableView_7 = QtWidgets.QTableView(parent=self.centralwidget)
