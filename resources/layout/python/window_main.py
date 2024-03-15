@@ -708,14 +708,16 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetDefaultConstraint)
         self.verticalLayout_4.setSpacing(0)
         self.verticalLayout_4.setObjectName("verticalLayout_4")
-        self.tableView_4 = QtWidgets.QTableView(parent=self.centralwidget)
-        self.tableView_4.setMaximumSize(QtCore.QSize(267, 16777215))
-        self.tableView_4.setObjectName("tableView_4")
-        self.verticalLayout_4.addWidget(self.tableView_4)
-        self.tableView_5 = QtWidgets.QTableView(parent=self.centralwidget)
-        self.tableView_5.setMaximumSize(QtCore.QSize(267, 16777215))
-        self.tableView_5.setObjectName("tableView_5")
-        self.verticalLayout_4.addWidget(self.tableView_5)
+        self.allBlocksInfoTextArea = QtWidgets.QTextEdit(parent=self.centralwidget)
+        self.allBlocksInfoTextArea.setReadOnly(True)
+        self.allBlocksInfoTextArea.setMaximumSize(QtCore.QSize(267, 16777215))
+        self.allBlocksInfoTextArea.setObjectName("allBlocksInfoTextArea")
+        self.verticalLayout_4.addWidget(self.allBlocksInfoTextArea)
+        self.currentBlockInfoTextArea = QtWidgets.QTextEdit(parent=self.centralwidget)
+        self.currentBlockInfoTextArea.setMaximumSize(QtCore.QSize(267, 16777215))
+        self.currentBlockInfoTextArea.setObjectName("currentBlockInfoTextArea")
+        self.currentBlockInfoTextArea.setReadOnly(True)
+        self.verticalLayout_4.addWidget(self.currentBlockInfoTextArea)
         self.tableView_8 = QtWidgets.QTableView(parent=self.centralwidget)
         self.tableView_8.setMaximumSize(QtCore.QSize(267, 35))
         self.tableView_8.setObjectName("tableView_8")
@@ -730,11 +732,8 @@ class Ui_MainWindow(object):
         width = win32api.GetSystemMetrics(0) // 2
         height = win32api.GetSystemMetrics(1) // 2
 
-        # Устанавливаем размеры и положение окна
         window_width = MainWindow.width()
         window_height = MainWindow.height()
-
-        # АААААА КОСТЫЛИ
 
         self.retranslateUi(MainWindow)
 
