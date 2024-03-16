@@ -4,6 +4,8 @@ from PyQt6.QtWidgets import QPushButton, QRubberBand, QLabel
 from resources.layout.python.window_main import *
 import sys
 
+itsDeleteOperation = False
+deletingObject = None
 
 globalStylesheet = ""
 applicationElementWidth = 10
@@ -71,8 +73,8 @@ class BlockForField(QLabel):
 
         super().__init__()
 
-        lastDraggedBlockX = self.x() #Координата X последнего тронутого блока на поле
-        lastDraggedBlockY = self.y() #Координата Y последнего тронутого блока на поле
+        lastDraggedBlockX = self.x()
+        lastDraggedBlockY = self.y()
 
         self.inChainInFront = False
         self.inChainInBack = False
@@ -85,16 +87,9 @@ class BlockForField(QLabel):
 
         self.blockCategory = category
 
-        self.xOnMap = self.x() #Текущая координата X текущего блока
-        self.yOnMap = self.y() #Текущая координата Y текущего блока
-        self.name = "init" + str(blocksCurrentCout) #Имя блока
-
-        # print(self.name)
-
-        #####
-
-        # globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + self.name + "\n")
-
+        self.xOnMap = self.x()
+        self.yOnMap = self.y()
+        self.name = "init" + str(blocksCurrentCout)
         self.setText(self.name)
 
         blocksCurrentCout = blocksCurrentCout+1
@@ -130,8 +125,6 @@ class BlockForField(QLabel):
         global grabber, widthFix, globalMainWindow, extraHeight, extraWidth, consist, globalBlockConstructor
 
         if grabber:
-            # consist = False
-
             window_pos = globalMainWindow.pos()
             global_pos = globalMainWindow.mapToGlobal(window_pos)
 
@@ -161,14 +154,12 @@ class BlockForField(QLabel):
             self.inChainInFront = False
             self.inChainInBack = False
 
-
             printInfoAboutBlock(self)
 
 
     def mouseReleaseEvent(self, ev):
         global grabber, lastDraggedBlockX, lastDraggedBlockY, globalBlockConstructor
         grabber = False
-        # itsNotConnection = True
 
         blocks = globalBlockConstructor.findChildren(BlockForField)
 
@@ -178,19 +169,10 @@ class BlockForField(QLabel):
         for button in reversed (blocks):
             if (self.name != button.name):
                 if (button.x() - 50 < selfXCenter < button.x() + 150):
-                    if (button.y() - 50 < selfYCenter < button.y() + 50): #Прикрепление блока наверх
+                    if (button.y() - 50 < selfYCenter < button.y() + 50): #Прикрепление блока сверху
                         if self.inChain == True:
-                            # if self.inChainInFront:
-                            #     globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText().replace("-" + self.name, ""))
-                            # if self.inChainInBack:
-                            #     globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText().replace(self.name + "-", ""))
                             self.inChainInBack = False
                             self.inChainInFront = False
-                        # else:
-                        #     globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText().replace(self.name + "\n", ""))
-
-                        # globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText().replace(button.name + "\n", self.name + "-" + button.name + "\n"))
-
                         self.frontBlockInChain = button.name
                         button.backBlockInChain = self.name
                         self.move(button.x(), button.y() - 100)
@@ -198,25 +180,12 @@ class BlockForField(QLabel):
                         self.inChainInBack = True
                         button.inChain = True
                         button.inChainInFront = True
-                        # itsNotConnection = False
                         break
                     else:
-                        if (button.y() + 50 < selfYCenter < button.y() + 150): #Прикрепление блока вниз
+                        if (button.y() + 50 < selfYCenter < button.y() + 150): #Прикрепление блока снизу
                             if self.inChain == True:
-                                # if self.inChainInFront:
-                                #     globalInfoCheckTextArea.setText(
-                                #         globalInfoCheckTextArea.toPlainText().replace("-" + self.name, ""))
-                                # if self.inChainInBack:
-                                #     globalInfoCheckTextArea.setText(
-                                #         globalInfoCheckTextArea.toPlainText().replace("-" + self.name , ""))
                                 self.inChainInFront = False
                                 self.inChainInBack = False
-                            # else:
-                            #     globalInfoCheckTextArea.setText(
-                            #         globalInfoCheckTextArea.toPlainText().replace(self.name + "\n", ""))
-                            # globalInfoCheckTextArea.setText(
-                            #     globalInfoCheckTextArea.toPlainText().replace(button.name + "\n",
-                            #                                                    button.name + "-" + self.name + "\n"))
                             self.backBlockInChain = button.name
                             button.frontBlockInChain = self.name
                             self.move(button.x(), button.y() + 100)
@@ -224,16 +193,32 @@ class BlockForField(QLabel):
                             self.inChainInFront = True
                             button.inChain = True
                             button.inChainInBack = True
-                            #itsNotConnection = False
                             break
 
 
         printInfoAboutBlock(self)
         printGlobalElements()
-        #if itsNotConnection:
+
+
+    def mouseDoubleClickEvent(self, a0):
+        global blocksCurrentCout, globalInfoCheckTextArea, lastDraggedBlockName, itsDeleteOperation, deletingObject
+        blocksCurrentCout = blocksCurrentCout - 1
+        self.deleteLater()
+        globalCurrentBlockInfoTextArea.setText(None)
+
+        if lastDraggedBlockName != self.name:
+            blocks = globalBlockConstructor.findChildren(BlockForField)
+            for block in blocks:
+                if block.name == lastDraggedBlockName:
+                    block.setStyleSheet(block.defaultStyleSheet)
+                    break
+
+        lastDraggedBlockName = self.name
+        printGlobalElements()
+
 
 def printGlobalElements():
-    global globalInfoCheckTextArea, globalBlockConstructor
+    global globalInfoCheckTextArea, globalBlockConstructor, itsDeleteOperation, deletingObject
 
     firstBlocks = []
     lastBlocks = []
@@ -244,8 +229,6 @@ def printGlobalElements():
     allBlocks = globalBlockConstructor.findChildren(BlockForField)
     allBlocksCount = len(allBlocks)
     globalInfoCheckTextArea.setText("")
-    # doubleMoment = False
-    # constructionMode = False
     for block in allBlocks:
         if block.inChain:
             if (block.inChainInBack & block.inChainInFront):
@@ -257,68 +240,30 @@ def printGlobalElements():
                     lastBlocks.append(block.name)
 
         else:
-        #     if constructionMode:
-        #         if block.inChainInFront:
-        #
-        #         if block.inChainInBack:
-        #             buffer = str(globalInfoCheckTextArea.toPlainText())
-        #             buffer.replace("")
-        #
-        #     else:
-        #         if block.inChainInBack:
-        #             constructionMode = True
-        #             currentString = str(block.name) + "+" + str(block.frontBlockInChain)
-        #             globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + "\n" + currentString)
-        #             doubleMoment = True
-        #
-        #         if block.inChainInFront:
-        #             if doubleMoment:
-        #                 globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + "+" + str(block.name))
-        #             else:
-        #                 constructionMode = True
-        #                 currentString = block.backBlockInChain + "+" + str(block.name)
-        #                 globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + "\n" + currentString)
-        #         if block.inChainInBack:
-        #             constructionMode = True
-        #             currentString = str(block.name) + "+" + str(block.frontBlockInChain)
-        #             globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + "\n" + currentString)
-        #             doubleMoment = True
-        #
-        # else:
-        #     if constructionMode:
-        #         constructionMode = False
-        #         globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + "\n" + block.name + "\n")
-        #     else:
-        #         globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + block.name + "\n")
-
             radicalBlocks.append(block.name)
 
-    # globalInfoCheckTextArea.setText("Firsts - " + str(len(firstBlocks)) +
-    #                                 "\nLasts - " + str(len(lastBlocks)) +
-    #                                 "\nPromejs - " + str(len(promejBlocks)) +
-    #                                 "\nRadicals - " + str(len(radicalBlocks)) + "\n\n")
-    someString = "Amount of blocks  " + str(allBlocksCount) + "\n"
+    someString = "Amount " + str(allBlocksCount) + "\n"
     globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + someString + "\n")
 
-    someString = "Firsts " + str(len(firstBlocks)) + ": \n"
+    someString = "First " + str(len(firstBlocks)) + ": \n"
     for i in firstBlocks:
         someString = someString + "          " + i + "\n"
 
     globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + someString + "\n")
 
-    someString = "Lasts " + str(len(lastBlocks)) + ": \n"
+    someString = "Last " + str(len(lastBlocks)) + ": \n"
     for i in lastBlocks:
         someString = someString + "          " + i + "\n"
 
     globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + someString + "\n")
 
-    someString = "Promejs " + str(len(promejBlocks)) + ": \n"
+    someString = "Intermediate " + str(len(promejBlocks)) + ": \n"
     for i in promejBlocks:
         someString = someString + "          " + i + "\n"
 
     globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + someString + "\n")
 
-    someString = "Radicals " + str(len(radicalBlocks)) + ": \n"
+    someString = "Outside chains " + str(len(radicalBlocks)) + ": \n"
     for i in radicalBlocks:
         someString = someString + "          " + i + "\n"
 
@@ -327,17 +272,13 @@ def printGlobalElements():
     if len(firstBlocks) > 0:
         for i in range(len(firstBlocks)):
             cepochki.append(firstBlocks[i] + " - ")
-            afterLastFound = False
-            beforeLastFound = False
             lastBlock = None
-            maybeItsTheLast = True
             blocksCount = 0
 
 
             for block in allBlocks:
                 if block.backBlockInChain == firstBlocks[i]:
                     cepochki[i] = cepochki[i] + block.name + " - "
-                    maybeItsTheLast = True
                     blocksCount = 2
                     lastBlock = block
                     break
@@ -347,12 +288,10 @@ def printGlobalElements():
                 for block in allBlocks:
                     if (block.name == lastBlock.frontBlockInChain) & (block.frontBlockInChain != None):
                         cepochki[i] = cepochki[i] + block.name + " - "
-                        maybeItsTheLast = False
                         blocksCount = blocksCount + 1
                         lastBlock = block
                         break
                     if (block.name == lastBlock.frontBlockInChain) & (block.frontBlockInChain == None):
-                    #     beforeLastFound = True
                         lastFound = True
                         blocksCount = blocksCount + 1
                         cepochki[i] = cepochki[i] + block.name
@@ -367,32 +306,6 @@ def printGlobalElements():
 
             someString = cepochki[i]
             globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + someString + "\n")
-
-
-    # doubleMoment = False
-
-    def mouseDoubleClickEvent(self, a0):
-        global blocksCurrentCout, globalInfoCheckTextArea, lastDraggedBlockName
-        # if self.inChain:
-        #     if self.inChainInFront:
-        #         globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText().replace("-" + self.name, ""))
-        #     if self.inChainInBack:
-        #         globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText().replace(self.name + "-", ""))
-        # else:
-        #     globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText().replace(self.name + "\n", ""))
-        blocksCurrentCout = blocksCurrentCout - 1
-        self.deleteLater()
-        globalCurrentBlockInfoTextArea.setText(None)
-
-        if lastDraggedBlockName != self.name:
-            blocks = globalBlockConstructor.findChildren(BlockForField)
-            for block in blocks:
-                if block.name == lastDraggedBlockName:
-                    block.setStyleSheet(block.defaultStyleSheet)
-                    break
-
-        lastDraggedBlockName = self.name
-
 
 
 class BlockLabel(QPushButton):
@@ -413,6 +326,7 @@ class BlockLabel(QPushButton):
         ui.scrollAreaWidgetContents.label.setParent(ui.scrollAreaWidgetContents)
         ui.scrollAreaWidgetContents.label.show()
         printInfoAboutBlock(ui.scrollAreaWidgetContents.label)
+        printGlobalElements()
 
 
 
@@ -460,7 +374,6 @@ def formatBlocksToCategory(ui, blocksArray, categoryNumber, blocknumber):
 
 def printInfoAboutBlock(block):
     global ui, globalCurrentBlockInfoTextArea
-    # print(block.name)
     globalCurrentBlockInfoTextArea.setText("X - " + str(block.x()) + "\nY - " + str(block.y()) +
                                            "\nName - " + block.name + "\nblockCategory - " + block.blockCategory +
                                            "\ninChain - " + str(block.inChain) + "\ninChainInFront - " + str(
