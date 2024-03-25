@@ -1,12 +1,104 @@
-from PyQt6 import QtCore, QtGui, QtWidgets
-from PyQt6.QtCore import QRect, QSize, Qt
-from PyQt6.QtWidgets import QApplication, QScrollArea
+import os
+from tkinter import filedialog
+
 import win32api
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import QRect, QSize, Qt, QPoint, QEvent
+from PyQt6.QtGui import QCursor
+from PyQt6.QtWidgets import QApplication, QScrollArea, QMenu, QDialog, QLabel, QPushButton, QLayout, QGridLayout, \
+    QMainWindow
+
+# from python.presentation.MainWindow.MainWindow import returnNeedSave
 from run import paths
 
+from PyQt6.QtWidgets import QMainWindow, QDialog, QLabel, QPushButton, QGridLayout
+from PyQt6.QtCore import Qt
+
+from tkinter import *
+
+# from python.presentation.MainWindow.MainWindow import returnNeedSave
+
+globalUi = None
+globalMainWindow = None
+
+needSave = False
+
+class SaveBeforeExitModalWindow(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Сохранение перед закрытием")
+        self.text = QLabel("Сохранить проект перед закрытием приложения?")
+        self.cancelButton = QPushButton("Отмена")
+        self.acceptButton = QPushButton("Да")
+        self.denyButton = QPushButton("Нет")
+
+        self.cancelButton.setMaximumWidth(100)
+        self.acceptButton.setMaximumWidth(100)
+        self.denyButton.setMaximumWidth(100)
+
+        self.acceptButton.clicked.connect(self.acceptEvent)
+        self.denyButton.clicked.connect(self.denyEvent)
+        self.cancelButton.clicked.connect(self.cancelEvent)
+
+        buttonsLayout = QGridLayout()
+        buttonsLayout.addWidget(self.acceptButton, 0, 0)
+        buttonsLayout.addWidget(self.denyButton, 0, 1)
+        buttonsLayout.addWidget(self.cancelButton, 0, 2)
+
+        modalLayout = QGridLayout()
+        modalLayout.addWidget(self.text, 0, 0)
+        modalLayout.addLayout(buttonsLayout, 1, 0)
+
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
+
+        self.setLayout(modalLayout)
+
+    def acceptEvent(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt",
+                                                 filetypes=[("Text files", "*.txt")])
+        if file_path:
+            with open(file_path, 'w') as file:
+                savingProjectInfo = globalUi.allBlocksInfoTextArea.toPlainText()
+                file.write(savingProjectInfo)
+            print("Сохранено!")
+            self.accept()
+        else:
+            self.reject()
+
+
+    def denyEvent(self):
+        self.accept()
+
+    def cancelEvent(self):
+        self.reject()
+
+class MainWindowC(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+    def resizeEvent(self, event):
+        global ElementsHeight, ElementsWidth
+
+        ElementsWidth = self.width()
+        ElementsHeight = self.height()
+
+    # def closeEvent(self, event):
+    #     global needSave
+    #     needSave = returnNeedSave()
+    #     if needSave:
+    #         modal = SaveBeforeExitModalWindow(self)
+    #         if modal.exec() != QDialog.DialogCode.Accepted:
+    #             event.ignore()
+
+    def closeEvent(self, event):
+        modal = SaveBeforeExitModalWindow(self)
+        if modal.exec() != QDialog.DialogCode.Accepted:
+            event.ignore()
+
+
+globalMainWindow = None
 globalBlockConstructor = None
 class block_constructorr(QScrollArea):
-
     def __init__(self):
         super().__init__()
 
@@ -26,22 +118,17 @@ class block_constructorr(QScrollArea):
             self.rubberBand.hide()
             self.origin = None
 
-class MainWindowC(QtWidgets.QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-    def resizeEvent(self, event):
-        global ElementsHeight, ElementsWidth
-
-        ElementsWidth = self.width()
-        ElementsHeight = self.height()
 
 class Ui_MainWindow(object):
     def __init__(self):
+        global globalUi
         self.block_constructor = None
         self.iconsDir = paths["icons"]
+        globalUi = self
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
+        global globalMainWindow
+        globalMainWindow = MainWindow
+        MainWindow.setWindowTitle("JofLang IDE - Untitled")
         MainWindow.setWindowIcon(QtGui.QIcon(self.iconsDir + "JofLangIcon.png"))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -529,138 +616,6 @@ class Ui_MainWindow(object):
         self.verticalLayout_6.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetNoConstraint)
         self.verticalLayout_6.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_6.setObjectName("verticalLayout_6")
-        self.Block_1 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_1.sizePolicy().hasHeightForWidth())
-        self.Block_1.setSizePolicy(sizePolicy)
-        self.Block_1.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_1.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_1.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_1.setObjectName("Block_1")
-        self.verticalLayout_6.addWidget(self.Block_1)
-        self.Block_2 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_2.sizePolicy().hasHeightForWidth())
-        self.Block_2.setSizePolicy(sizePolicy)
-        self.Block_2.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_2.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_2.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_2.setObjectName("Block_2")
-        self.verticalLayout_6.addWidget(self.Block_2)
-        self.Block_3 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_3.sizePolicy().hasHeightForWidth())
-        self.Block_3.setSizePolicy(sizePolicy)
-        self.Block_3.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_3.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_3.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_3.setObjectName("Block_3")
-        self.verticalLayout_6.addWidget(self.Block_3)
-        self.Block_4 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_4.sizePolicy().hasHeightForWidth())
-        self.Block_4.setSizePolicy(sizePolicy)
-        self.Block_4.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_4.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_4.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_4.setObjectName("Block_4")
-        self.verticalLayout_6.addWidget(self.Block_4)
-        self.Block_5 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_5.sizePolicy().hasHeightForWidth())
-        self.Block_5.setSizePolicy(sizePolicy)
-        self.Block_5.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_5.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_5.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_5.setObjectName("Block_5")
-        self.verticalLayout_6.addWidget(self.Block_5)
-        self.Block_6 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_6.sizePolicy().hasHeightForWidth())
-        self.Block_6.setSizePolicy(sizePolicy)
-        self.Block_6.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_6.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_6.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_6.setObjectName("Block_6")
-        self.verticalLayout_6.addWidget(self.Block_6)
-        self.Block_7 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_7.sizePolicy().hasHeightForWidth())
-        self.Block_7.setSizePolicy(sizePolicy)
-        self.Block_7.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_7.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_7.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_7.setObjectName("Block_7")
-        self.verticalLayout_6.addWidget(self.Block_7)
-        self.Block_8 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_8.sizePolicy().hasHeightForWidth())
-        self.Block_8.setSizePolicy(sizePolicy)
-        self.Block_8.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_8.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_8.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_8.setObjectName("Block_8")
-        self.verticalLayout_6.addWidget(self.Block_8)
-        self.Block_9 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_9.sizePolicy().hasHeightForWidth())
-        self.Block_9.setSizePolicy(sizePolicy)
-        self.Block_9.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_9.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_9.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_9.setObjectName("Block_9")
-        self.verticalLayout_6.addWidget(self.Block_9)
-        self.Block_10 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_10.sizePolicy().hasHeightForWidth())
-        self.Block_10.setSizePolicy(sizePolicy)
-        self.Block_10.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_10.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_10.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_10.setObjectName("Block_10")
-        self.verticalLayout_6.addWidget(self.Block_10)
-        self.Block_11 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.Block_11.sizePolicy().hasHeightForWidth())
-        self.Block_11.setSizePolicy(sizePolicy)
-        self.Block_11.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.Block_11.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.Block_11.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.Block_11.setObjectName("Block_11")
-        self.verticalLayout_6.addWidget(self.Block_11)
-        self.label_11 = QtWidgets.QLabel(parent=self.verticalLayoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_11.sizePolicy().hasHeightForWidth())
-        self.label_11.setSizePolicy(sizePolicy)
-        self.label_11.setStyleSheet("background-color: rgb(170, 255, 255);")
-        self.label_11.setTextFormat(QtCore.Qt.TextFormat.RichText)
-        self.label_11.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-        self.label_11.setObjectName("label_11")
-        self.verticalLayout_6.addWidget(self.label_11)
         self.block_list.setWidget(self.scrollAreaWidgetContents_2)
         self.verticalLayout_2.addWidget(self.block_list)
         self.tableView_6 = QtWidgets.QTableView(parent=self.centralwidget)
@@ -739,6 +694,58 @@ class Ui_MainWindow(object):
 
         MainWindow.move(width // 2 - window_width//2, height // 2 - window_height // 2 + 100)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.fileBarButton.clicked.connect(lambda: self.clicked(self, MainWindow))
+
+
+    def clicked(self, elements, MainWindow):
+        self.context_menu = QMenu()
+        createProjectAction = self.context_menu.addAction("Создать")
+        saveProjectAction = self.context_menu.addAction("Сохранить")
+        loadProjectAction = self.context_menu.addAction("Загрузить")
+
+        window_pos = MainWindow.pos()
+        global_pos = MainWindow.mapToGlobal(window_pos)
+
+        currentX = QCursor.pos().x()
+        currentY = QCursor.pos().y()
+
+        point = QPoint(currentX, currentY)
+
+        createProjectAction.triggered.connect(lambda: self.createProject())
+        saveProjectAction.triggered.connect(lambda: self.saveProject())
+        loadProjectAction.triggered.connect(lambda: self.loadProject())
+
+        self.context_menu.exec(point)
+
+
+    def createProject(self):
+        global needSave
+        print("Создано!")
+        needSave = False
+
+
+    def saveProject(self):
+        global globalMainWindow, needSave
+        file_path = filedialog.asksaveasfilename(defaultextension=".txt",
+                                                 filetypes=[("Text files", "*.txt")])
+        file_name = os.path.basename(file_path)
+
+        if file_path:
+            with open(file_path, 'w') as file:
+                savingProjectInfo = globalUi.allBlocksInfoTextArea.toPlainText()
+                file.write(savingProjectInfo)
+            globalMainWindow.setWindowTitle("JofLang IDE - " + file_name.replace(".txt", ""))
+            needSave = False
+            print("Сохранено!")
+
+
+
+
+    def loadProject(self):
+        global needSave
+        print("Загружено!")
+        needSave = False
+
 
 
 
@@ -756,15 +763,3 @@ class Ui_MainWindow(object):
         self.Control2CategoryLabel.setText(_translate("MainWindow", "Контроль_2"))
         self.SchemaCategoryLabel.setText(_translate("MainWindow", "Схема"))
         self.SpecialCategoryLabel.setText(_translate("MainWindow", "Особенное"))
-        self.Block_1.setText(_translate("MainWindow", "Блок N"))
-        self.Block_2.setText(_translate("MainWindow", "Блок N"))
-        self.Block_3.setText(_translate("MainWindow", "Блок N"))
-        self.Block_4.setText(_translate("MainWindow", "Блок N"))
-        self.Block_5.setText(_translate("MainWindow", "Блок N"))
-        self.Block_6.setText(_translate("MainWindow", "Блок N"))
-        self.Block_7.setText(_translate("MainWindow", "Блок N"))
-        self.Block_8.setText(_translate("MainWindow", "Блок N"))
-        self.Block_9.setText(_translate("MainWindow", "Блок N"))
-        self.Block_10.setText(_translate("MainWindow", "Блок N"))
-        self.Block_11.setText(_translate("MainWindow", "Блок N"))
-        self.label_11.setText(_translate("MainWindow", "Блок N"))

@@ -1,19 +1,14 @@
-from PyQt6.QtGui import QCursor
-from PyQt6.QtWidgets import QPushButton, QRubberBand, QLabel
-
-from resources.layout.python.window_main import *
+from PyQt6.QtGui import QCursor, QIcon, QPixmap, QImage
+from PyQt6.QtWidgets import QPushButton, QRubberBand, QLabel, QDialog
 import sys
+from resources.layout.python.window_main import *
+from run import paths, path
+from python.domain.blockResources import blocksArray
 
 itsDeleteOperation = False
-deletingObject = None
 
-globalStylesheet = ""
-applicationElementWidth = 10
-applicationElementHeight = 10
 ui = Ui_MainWindow()
 widthFix = 0
-ElementsHeight = 0
-ElementsWidth = 0
 blocksInfo = [[0, 0, "init0"]]
 blocksCurrentCout = 0
 lastDraggedBlockName = "init"
@@ -21,24 +16,34 @@ globalMainWindow = 0
 extraHeight = 0
 extraWidth = 0
 
+#Элементы интерфейса при запуске записываются сюда, для возможности к ним обращаться
 globalJofLangLogo = None
 globalBlockList = None
 globalBlockConstructor = None
 globalInfoCheckTextArea = None
 globalCurrentBlockInfoTextArea = None
-globalCategory = None
-globalSelectedStylesheet = None
+
+from resources.layout.python.window_main import needSave
 
 def execute():
-    global ui, widthFix, globalMainWindow, globalJofLangLogo, globalBlockList,\
+    global ui, widthFix, globalMainWindow, globalJofLangLogo, globalBlockList, \
         globalBlockConstructor, globalInfoCheckTextArea, globalCurrentBlockInfoTextArea
 
-    blocksArray = [[[0, "SomeCode0", "LinkToIllustration"], [1, "SomeCode0", "LinkToIllustration"], [0, "SomeCode0", "LinkToIllustration"], [1, "SomeCode0", "LinkToIllustration"]],
-                    [[0, "SomeCode1", "LinkToIllustration"], [1, "SomeCode1", "LinkToIllustration"]],
-                    [[0, "SomeCode2", "LinkToIllustration"], [1, "SomeCode2", "LinkToIllustration"]],
-                    [[0, "SomeCode3", "LinkToIllustration"], [1, "SomeCode3", "LinkToIllustration"]],
-                    [[0, "SomeCode4", "LinkToIllustration"], [1, "SomeCode4", "LinkToIllustration"]],
-                    [[0, "SomeCode5", "LinkToIllustration"], [1, "SomeCode5", "LinkToIllustration"]]]
+    # blocksInfoFile = open(paths["blocks"],'r')
+    # currentLine = blocksInfoFile.readline().strip()
+    # print(currentLine)
+    # if (search("Variables", currentLine)):
+    #
+    # blocksInfoFile.close()
+
+    # Болванка информации для списка блоков
+    # blocksArray = [[[0, "SomeCode0", "LinkToIllustration"], [1, "SomeCode0", "LinkToIllustration"],
+    #                 [0, "SomeCode0", "LinkToIllustration"], [1, "SomeCode0", "LinkToIllustration"]],
+    #                [[0, "SomeCode1", "LinkToIllustration"], [1, "SomeCode1", "LinkToIllustration"]],
+    #                [[0, "SomeCode2", "LinkToIllustration"], [1, "SomeCode2", "LinkToIllustration"]],
+    #                [[0, "SomeCode3", "LinkToIllustration"], [1, "SomeCode3", "LinkToIllustration"]],
+    #                [[0, "SomeCode4", "LinkToIllustration"], [1, "SomeCode4", "LinkToIllustration"]],
+    #                [[0, "SomeCode5", "LinkToIllustration"], [1, "SomeCode5", "LinkToIllustration"]]]
 
     app = QtWidgets.QApplication(sys.argv)
     globalMainWindow = MainWindowC()
@@ -51,30 +56,30 @@ def execute():
     ui.block_constructor.rubberBand.origin = None
     globalInfoCheckTextArea = ui.allBlocksInfoTextArea
     widthFix = ui.tableView_6.width() + ui.scrollArea_2.width()
-    ui.VariablesCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, blocksArray, 0, 0))
-    ui.OperationsCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, blocksArray, 1, 0))
-    ui.ControlCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, blocksArray, 2, 0))
-    ui.Control2CategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, blocksArray, 3, 0))
-    ui.SchemaCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, blocksArray, 4, 0))
-    ui.SpecialCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, blocksArray, 5, 0))
-    formatBlocksToCategory(ui, blocksArray,0,0)
-    globalMainWindow.show()
 
+    ui.VariablesCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 0))
+    ui.OperationsCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 1))
+    ui.ControlCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 2))
+    ui.Control2CategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 3))
+    ui.SchemaCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 4))
+    ui.SpecialCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 5))
+
+    formatBlocksToCategory(ui,0) #Метод, что прорисовывает текущий список блоков
+
+    globalMainWindow.show()
     sys.exit(app.exec())
 
 
 grabber = False
 consist = False
 freeX = 0
-class BlockForField(QLabel):
-    def __init__(self, ui, category):
-        global globalStylesheet, blocksCurrentCout, lastDraggedBlockX,\
-            lastDraggedBlockY, lastDraggedBlockName, blocksInfo, consist, globalInfoCheckTextArea, lastDraggedBlockName
-
+class BlockForField(QLabel): #Блок в конструкторе блоков
+    def __init__(self, ui, category, styleSheet, blockName): #Создание блока на поле
+        global globalStylesheet, blocksCurrentCout, \
+             lastDraggedBlockName, blocksInfo, consist, globalInfoCheckTextArea, lastDraggedBlockName, needSave
         super().__init__()
 
-        lastDraggedBlockX = self.x()
-        lastDraggedBlockY = self.y()
+        needSave = True
 
         self.inChainInFront = False
         self.inChainInBack = False
@@ -82,18 +87,23 @@ class BlockForField(QLabel):
 
         self.frontBlockInChain = None
         self.backBlockInChain = None
-        self.defaultStyleSheet = globalStylesheet
-        self.selectedStyleSheet = globalStylesheet + "border-style: solid; border-width: 1px; border-color: black;"
+        self.defaultStyleSheet = styleSheet #Надо определять по нажимаемой кнопке
+        self.selectedStyleSheet = styleSheet + "border-style: solid; border-width: 1px; border-color: black;"
 
         self.blockCategory = category
 
         self.xOnMap = self.x()
-        self.yOnMap = self.y()
-        self.name = "init" + str(blocksCurrentCout)
+        self.yOnMap = self.y() #Для сохранённых проектов
+        self.name = blockName
+        self.initName = blockName + str(blocksCurrentCout)
         self.setText(self.name)
-
-        blocksCurrentCout = blocksCurrentCout+1
-        self.setStyleSheet(globalStylesheet)
+        pixmap = QPixmap(QPixmap(paths["blocksIcons"] + self.name + ".jpg"))
+        self.setFixedWidth(175)
+        self.setFixedHeight(100)
+        pixmap = pixmap.scaled(int(self.width()), int(self.height()))
+        self.setPixmap(pixmap)
+        blocksCurrentCout = blocksCurrentCout + 1
+        self.setStyleSheet(styleSheet)
 
         printInfoAboutBlock(self)
         self.setStyleSheet(self.selectedStyleSheet)
@@ -105,10 +115,10 @@ class BlockForField(QLabel):
                 break
         lastDraggedBlockName = self.name
 
-
     def mousePressEvent(self, event):
-        global grabber, globalBlockConstructor, lastDraggedBlockName
+        global grabber, globalBlockConstructor, lastDraggedBlockName, needSave
         grabber = True
+        needSave = True
         globalCurrentBlockInfoTextArea.setText(str(self.x()))
         printInfoAboutBlock(self)
         self.setStyleSheet(self.selectedStyleSheet)
@@ -128,8 +138,8 @@ class BlockForField(QLabel):
             window_pos = globalMainWindow.pos()
             global_pos = globalMainWindow.mapToGlobal(window_pos)
 
-            extraHeight = globalJofLangLogo.height() + 20 + 50 + int(global_pos.y())//2
-            extraWidth = ui.JofLangLogo.width() + ui.block_list.width() + 50 + int(global_pos.x())//2
+            extraHeight = globalJofLangLogo.height() + 20 + 50 + int(global_pos.y()) // 2
+            extraWidth = ui.JofLangLogo.width() + ui.block_list.width() + 50 + int(global_pos.x()) // 2
 
             currentX = QCursor.pos().x() - extraWidth
             currentY = QCursor.pos().y() - extraHeight
@@ -147,7 +157,6 @@ class BlockForField(QLabel):
                     block.backBlockInChain = None
                     block.inChain = False
 
-
             self.inChain = False
             self.backBlockInChain = None
             self.frontBlockInChain = None
@@ -156,20 +165,19 @@ class BlockForField(QLabel):
 
             printInfoAboutBlock(self)
 
-
     def mouseReleaseEvent(self, ev):
         global grabber, lastDraggedBlockX, lastDraggedBlockY, globalBlockConstructor
         grabber = False
 
         blocks = globalBlockConstructor.findChildren(BlockForField)
 
-        selfXCenter = self.x() + 50
-        selfYCenter = self.y() + 50
+        selfXCenter = self.x() + self.width() / 2
+        selfYCenter = self.y() + self.height() / 2
 
-        for button in reversed (blocks):
-            if (self.name != button.name):
+        for button in reversed(blocks):
+            if (self.initName != button.initName):
                 if (button.x() - 50 < selfXCenter < button.x() + 150):
-                    if (button.y() - 50 < selfYCenter < button.y() + 50): #Прикрепление блока сверху
+                    if (button.y() - 50 < selfYCenter < button.y() + 50):  # Прикрепление блока сверху
                         if self.inChain == True:
                             self.inChainInBack = False
                             self.inChainInFront = False
@@ -182,26 +190,25 @@ class BlockForField(QLabel):
                         button.inChainInFront = True
                         break
                     else:
-                        if (button.y() + 50 < selfYCenter < button.y() + 150): #Прикрепление блока снизу
+                        if (button.y() + 50 < selfYCenter < button.y() + 150):  # Прикрепление блока снизу
                             if self.inChain == True:
                                 self.inChainInFront = False
                                 self.inChainInBack = False
                             self.backBlockInChain = button.name
                             button.frontBlockInChain = self.name
-                            self.move(button.x(), button.y() + 100)
+                            self.move(button.x(), button.y() + button.height()-20)
                             self.inChain = True
                             self.inChainInFront = True
                             button.inChain = True
                             button.inChainInBack = True
                             break
 
-
         printInfoAboutBlock(self)
         printGlobalElements()
 
-
-    def mouseDoubleClickEvent(self, a0):
-        global blocksCurrentCout, globalInfoCheckTextArea, lastDraggedBlockName, itsDeleteOperation, deletingObject
+    def mouseDoubleClickEvent(self, a0): #Удаление блока с поля
+        global blocksCurrentCout, globalInfoCheckTextArea, lastDraggedBlockName, itsDeleteOperation, needSave#, deletingObject
+        needSave = True
         blocksCurrentCout = blocksCurrentCout - 1
         self.deleteLater()
         globalCurrentBlockInfoTextArea.setText(None)
@@ -218,7 +225,7 @@ class BlockForField(QLabel):
 
 
 def printGlobalElements():
-    global globalInfoCheckTextArea, globalBlockConstructor, itsDeleteOperation, deletingObject
+    global globalInfoCheckTextArea, globalBlockConstructor, itsDeleteOperation #, deletingObject
 
     firstBlocks = []
     lastBlocks = []
@@ -275,7 +282,6 @@ def printGlobalElements():
             lastBlock = None
             blocksCount = 0
 
-
             for block in allBlocks:
                 if block.backBlockInChain == firstBlocks[i]:
                     cepochki[i] = cepochki[i] + block.name + " - "
@@ -299,7 +305,6 @@ def printGlobalElements():
                 if lastFound:
                     break
 
-
             if blocksCount == 2:
                 stringB = cepochki[i]
                 cepochki[i] = stringB[0: int(len(stringB) - 3)]
@@ -309,16 +314,23 @@ def printGlobalElements():
 
 
 class BlockLabel(QPushButton):
-    def __init__(self, BlockName, ui, styleSheet):
+    def __init__(self, blockName, ui, thisStyleSheet, thisCategory):
         super().__init__()
-        self.setText(BlockName)
-        self.setStyleSheet(styleSheet)
+        self.setIcon(QIcon(paths["blocksIcons"] + blockName + ".jpg"))
+        self.setIconSize(QSize(75,50))
+        self.blockStyleSheet = thisStyleSheet
+        self.blockCategory = thisCategory
+        self.blockName = blockName
+        self.setFlat(True)
         self.setGeometry(300, 300, 300, 300)
         self.clicked.connect(lambda: self.justAClicked(ui))
+
     def justAClicked(self, ui):
-        global consist, freeX, globalCategory
-        ui.scrollAreaWidgetContents.label = BlockForField(ui, globalCategory)
-        if consist: freeX = freeX + 150
+        global consist, freeX, needSave
+        needSave = True
+        ui.scrollAreaWidgetContents.label = BlockForField(ui, self.blockCategory, self.blockStyleSheet, self.blockName)
+        if consist:
+            freeX = freeX + 150
         else:
             freeX = 0
             consist = True
@@ -329,39 +341,38 @@ class BlockLabel(QPushButton):
         printGlobalElements()
 
 
-
-def formatBlocksToCategory(ui, blocksArray, categoryNumber, blocknumber):
-    global globalStylesheet, globalCategory
+def formatBlocksToCategory(ui, categoryNumber):
     match categoryNumber:
         case 0:
-            ui.categoryName.setText("Переменные")
-            globalStylesheet = "background-color:  rgb(255, 170, 0);"
-            globalCategory = "Variables"
+            ui.categoryName.setText("Переменные") #Должен определять по нажатию на категорию
+            thisStyleSheet = "background-color:  rgb(255, 170, 0);"
+            thisCategory = "Variables"
         case 1:
             ui.categoryName.setText("Операторы")
-            globalStylesheet = "background-color:  rgb(170, 85, 255);"
-            globalCategory = "Operators"
+            thisStyleSheet = "background-color:  rgb(170, 85, 255);"
+            thisCategory = "Operators"
         case 2:
             ui.categoryName.setText("Контроль")
-            globalStylesheet = "background-color: rgb(0, 170, 255);"
-            globalCategory = "Control"
+            thisStyleSheet = "background-color: rgb(0, 170, 255);"
+            thisCategory = "Control"
         case 3:
             ui.categoryName.setText("Контроль_2")
-            globalStylesheet = "background-color: rgb(239, 0, 0);"
-            globalCategory = "Control_2"
+            thisStyleSheet = "background-color: rgb(239, 0, 0);"
+            thisCategory = "Control_2"
         case 4:
             ui.categoryName.setText("Схема")
-            globalStylesheet = "background-color: rgb(255, 255, 255);"
-            globalCategory = "Schema"
+            thisStyleSheet = "background-color: rgb(255, 255, 255);"
+            thisCategory = "Schema"
         case 5:
             ui.categoryName.setText("Особенные")
-            globalStylesheet = "background-color: rgb(255, 255, 0);"
-            globalCategory = "Special"
+            thisStyleSheet = "background-color: rgb(255, 255, 0);"
+            thisCategory = "Special"
 
-    countOfBlocks = ui.scrollAreaWidgetContents_2.findChildren(QLabel)
-    for i in countOfBlocks:
-        i.deleteLater()
-        i.widget_name = None
+    # countOfBlocks = ui.scrollAreaWidgetContents_2.findChildren(QLabel)
+    #
+    # for i in countOfBlocks:
+    #     i.deleteLater()
+    #     i.widget_name = None
 
     countOfBlocks = ui.scrollAreaWidgetContents_2.findChildren(QPushButton)
     for i in countOfBlocks:
@@ -369,18 +380,26 @@ def formatBlocksToCategory(ui, blocksArray, categoryNumber, blocknumber):
         i.widget_name = None
 
     for i in range(len(blocksArray[categoryNumber])):
-        blockName = "Object" + str(i)
-        ui.verticalLayout_6.addWidget(BlockLabel(blockName, ui, globalStylesheet))
+        blockName = "Block" + str(categoryNumber) + str(i)
+        ui.verticalLayout_6.addWidget(BlockLabel(blockName, ui,  thisStyleSheet, thisCategory))
+#categoryNumber,
 
 def printInfoAboutBlock(block):
     global ui, globalCurrentBlockInfoTextArea
     globalCurrentBlockInfoTextArea.setText("X - " + str(block.x()) + "\nY - " + str(block.y()) +
                                            "\nName - " + block.name + "\nblockCategory - " + block.blockCategory +
                                            "\ninChain - " + str(block.inChain) + "\ninChainInFront - " + str(
-                                            block.inChainInFront) +
+        block.inChainInFront) +
                                            "\ninChainInBack - " + str(block.inChainInBack) + "\nfrontBlockInChain - " +
                                            str(block.frontBlockInChain) + "\nbackBlockInChain - " + str(
-                                            block.backBlockInChain))
+        block.backBlockInChain))
+
 
 if __name__ == "__main__":
     execute()
+
+def returnNeedSave():
+    global needSave
+    return needSave
+
+

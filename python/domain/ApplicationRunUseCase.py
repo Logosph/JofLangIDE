@@ -5,8 +5,11 @@
 # ...
 # end_for
 
-def execute():
-    pass
+# def execute():
+#     pass
+#
+# def printGlobalElements():
+#     pass
 
 # Блоки -> код на Python -> Запускается этот код
 
