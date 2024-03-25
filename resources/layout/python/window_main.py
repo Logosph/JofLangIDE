@@ -8,7 +8,9 @@ from PyQt6.QtGui import QCursor
 from PyQt6.QtWidgets import QApplication, QScrollArea, QMenu, QDialog, QLabel, QPushButton, QLayout, QGridLayout, \
     QMainWindow
 
-# from python.presentation.MainWindow.MainWindow import returnNeedSave
+from python.presentation.MainWindow import MainWindow
+#from python.presentation.MainWindow.MainWindow import BlockForField
+
 from run import paths
 
 from PyQt6.QtWidgets import QMainWindow, QDialog, QLabel, QPushButton, QGridLayout
@@ -16,12 +18,25 @@ from PyQt6.QtCore import Qt
 
 from tkinter import *
 
-# from python.presentation.MainWindow.MainWindow import returnNeedSave
-
 globalUi = None
 globalMainWindow = None
 
-needSave = False
+
+# class BlockForField(QLabel):  # Блок в конструкторе блоков
+#     def __init__(self, initName, category, x, y, blockInChain, inBackInChain, inFrontInChain, blockInBack, blockInFront):
+#         super().__init__()
+#         self.initName = initName
+#         self.blockCategory = category
+#         self.xOnMap = x
+#         self.yOnMap = y
+#         self.blockInChain = blockInChain
+#         self.inBackInChain = inBackInChain
+#         self.inFrontInChain = inFrontInChain
+#         self.blockInBack = blockInBack
+#         self.blockInFront = blockInFront
+#         self.setFixedWidth(175)
+#         self.setFixedHeight(100)
+
 
 class SaveBeforeExitModalWindow(QDialog):
     def __init__(self, parent=None):
@@ -56,21 +71,36 @@ class SaveBeforeExitModalWindow(QDialog):
     def acceptEvent(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".txt",
                                                  filetypes=[("Text files", "*.txt")])
+        file_name = os.path.basename(file_path)
         if file_path:
             with open(file_path, 'w') as file:
-                savingProjectInfo = globalUi.allBlocksInfoTextArea.toPlainText()
-                file.write(savingProjectInfo)
+                savingVisibleProjectInfo = globalUi.allBlocksInfoTextArea.toPlainText()
+                # for child in globalUi.block_constructor.findChildren(QtWidgets.QWidget):
+                #     currentChildInfo = (str(child.initName) + " " +
+                #                         str(child.blockCategory) + " " +
+                #                         str(child.x()) + " " +
+                #                         str(child.y()) + " " +
+                #                         str(child.inChain) + " " +
+                #                         str(child.inChainInBack) + " " +
+                #                         str(child.inChainInFront) + " " +
+                #                         str(child.backBlockInChain) + " " +
+                #                         str(child.frontBlockInChain) + "\n\n")
+                #     savingInvisibleInfo = savingInvisibleInfo + currentChildInfo
+
+                file.write(savingVisibleProjectInfo)
+            globalMainWindow.setWindowTitle("JofLang IDE - " + file_name.replace(".txt", ""))
+            MainWindow.needSave = False
             print("Сохранено!")
             self.accept()
         else:
             self.reject()
-
 
     def denyEvent(self):
         self.accept()
 
     def cancelEvent(self):
         self.reject()
+
 
 class MainWindowC(QMainWindow):
     def __init__(self):
@@ -91,13 +121,16 @@ class MainWindowC(QMainWindow):
     #             event.ignore()
 
     def closeEvent(self, event):
-        modal = SaveBeforeExitModalWindow(self)
-        if modal.exec() != QDialog.DialogCode.Accepted:
-            event.ignore()
+        if MainWindow.needSave:
+            modal = SaveBeforeExitModalWindow(self)
+            if modal.exec() != QDialog.DialogCode.Accepted:
+                event.ignore()
 
 
 globalMainWindow = None
 globalBlockConstructor = None
+
+
 class block_constructorr(QScrollArea):
     def __init__(self):
         super().__init__()
@@ -113,7 +146,6 @@ class block_constructorr(QScrollArea):
             self.rubberBand.setGeometry(QRect(self.origin, event.pos()).normalized())
 
     def mouseReleaseEvent(self, event):
-
         if event.button() == Qt.MouseButton.LeftButton and self.origin:
             self.rubberBand.hide()
             self.origin = None
@@ -125,12 +157,14 @@ class Ui_MainWindow(object):
         self.block_constructor = None
         self.iconsDir = paths["icons"]
         globalUi = self
+
     def setupUi(self, MainWindow):
         global globalMainWindow
         globalMainWindow = MainWindow
         MainWindow.setWindowTitle("JofLang IDE - Untitled")
         MainWindow.setWindowIcon(QtGui.QIcon(self.iconsDir + "JofLangIcon.png"))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,
+                                           QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
@@ -151,7 +185,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.JofLangLogo = QtWidgets.QLabel(parent=self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+                                           QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.JofLangLogo.sizePolicy().hasHeightForWidth())
@@ -222,7 +257,8 @@ class Ui_MainWindow(object):
         self.helpBarButton.setFont(font)
         self.helpBarButton.setObjectName("helpBarButton")
         self.horizontalLayout_3.addWidget(self.helpBarButton)
-        spacerItem = QtWidgets.QSpacerItem(230, 20, QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(230, 20, QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+                                           QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
@@ -233,7 +269,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_5.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetFixedSize)
         self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setObjectName("horizontalLayout_5")
-        spacerItem1 = QtWidgets.QSpacerItem(28, 36, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem1 = QtWidgets.QSpacerItem(28, 36, QtWidgets.QSizePolicy.Policy.Fixed,
+                                            QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem1)
         self.categoryName = QtWidgets.QLabel(parent=self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -247,10 +284,12 @@ class Ui_MainWindow(object):
         self.categoryName.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.categoryName.setObjectName("categoryName")
         self.horizontalLayout_5.addWidget(self.categoryName)
-        spacerItem2 = QtWidgets.QSpacerItem(28, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem2 = QtWidgets.QSpacerItem(28, 20, QtWidgets.QSizePolicy.Policy.Fixed,
+                                            QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_5.addItem(spacerItem2)
         self.horizontalLayout_4.addLayout(self.horizontalLayout_5)
-        spacerItem3 = QtWidgets.QSpacerItem(130, 20, QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem3 = QtWidgets.QSpacerItem(130, 20, QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+                                            QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_4.addItem(spacerItem3)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setSizeConstraint(QtWidgets.QLayout.SizeConstraint.SetFixedSize)
@@ -301,12 +340,14 @@ class Ui_MainWindow(object):
         self.stopButton.setIconSize(QtCore.QSize(25, 25))
         self.stopButton.setObjectName("stopButton")
         self.horizontalLayout.addWidget(self.stopButton)
-        spacerItem4 = QtWidgets.QSpacerItem(110, 20, QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem4 = QtWidgets.QSpacerItem(110, 20, QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+                                            QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout.addItem(spacerItem4)
         self.horizontalLayout_4.addLayout(self.horizontalLayout)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
-        spacerItem5 = QtWidgets.QSpacerItem(270, 20, QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem5 = QtWidgets.QSpacerItem(270, 20, QtWidgets.QSizePolicy.Policy.Fixed,
+                                            QtWidgets.QSizePolicy.Policy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem5)
         self.verticalLayout_5.addLayout(self.horizontalLayout_2)
         self.horizontalLayout_7 = QtWidgets.QHBoxLayout()
@@ -324,7 +365,8 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.scrollArea_2.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.scrollArea_2.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.scrollArea_2.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
+        self.scrollArea_2.setSizeAdjustPolicy(
+            QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
         self.scrollArea_2.setWidgetResizable(False)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
@@ -640,7 +682,8 @@ class Ui_MainWindow(object):
         self.block_constructor.setObjectName("block_constructor")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, -423, 100000, 100000))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,
+                                           QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.scrollAreaWidgetContents.sizePolicy().hasHeightForWidth())
@@ -679,7 +722,8 @@ class Ui_MainWindow(object):
         self.verticalLayout_4.addWidget(self.tableView_8)
         self.horizontalLayout_7.addLayout(self.verticalLayout_4)
         self.verticalLayout_5.addLayout(self.horizontalLayout_7)
-        spacerItem6 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        spacerItem6 = QtWidgets.QSpacerItem(20, 0, QtWidgets.QSizePolicy.Policy.Minimum,
+                                            QtWidgets.QSizePolicy.Policy.Fixed)
         self.verticalLayout_5.addItem(spacerItem6)
         MainWindow.setCentralWidget(self.centralwidget)
         screen = QApplication.primaryScreen()
@@ -692,10 +736,9 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        MainWindow.move(width // 2 - window_width//2, height // 2 - window_height // 2 + 100)
+        MainWindow.move(width // 2 - window_width // 2, height // 2 - window_height // 2 + 100)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.fileBarButton.clicked.connect(lambda: self.clicked(self, MainWindow))
-
 
     def clicked(self, elements, MainWindow):
         self.context_menu = QMenu()
@@ -717,41 +760,76 @@ class Ui_MainWindow(object):
 
         self.context_menu.exec(point)
 
-
-    def createProject(self):
-        global needSave
+    def createProject(self): #Создание нового проекта
+        global globalMainWindow
+        MainWindow.needSave = False
+        globalMainWindow.setWindowTitle("JofLang IDE - Untitled")
+        for child in globalUi.block_constructor.findChildren(QtWidgets.QWidget):
+            child.deleteLater()
+        globalUi.currentBlockInfoTextArea.clear()
+        globalUi.allBlocksInfoTextArea.clear()
         print("Создано!")
-        needSave = False
-
 
     def saveProject(self):
-        global globalMainWindow, needSave
+        global globalMainWindow
         file_path = filedialog.asksaveasfilename(defaultextension=".txt",
                                                  filetypes=[("Text files", "*.txt")])
         file_name = os.path.basename(file_path)
 
         if file_path:
             with open(file_path, 'w') as file:
-                savingProjectInfo = globalUi.allBlocksInfoTextArea.toPlainText()
-                file.write(savingProjectInfo)
+                savingVisibleProjectInfo = globalUi.allBlocksInfoTextArea.toPlainText()
+                file.write(savingVisibleProjectInfo)
             globalMainWindow.setWindowTitle("JofLang IDE - " + file_name.replace(".txt", ""))
-            needSave = False
+            MainWindow.needSave = False
             print("Сохранено!")
 
-
-
-
     def loadProject(self):
-        global needSave
-        print("Загружено!")
-        needSave = False
+        global globalMainWindow, globalUi
+        file_path = filedialog.askopenfilename(defaultextension=".txt",
+                                               filetypes=[("Text files", "*.txt")])
+        if file_path:  # Проверяем, что пользователь выбрал файл
+            file_name = os.path.basename(file_path)
+            with open(file_path, 'r') as file:
+                file_content = file.read()
 
+            # Поиск строки, содержащей "Blocks Info:"
+            blocks_info_index = file_content.find("Blocks Info:")
 
+            # Если строка найдена, разделить содержимое файла на строки
+            if blocks_info_index != -1:
+                lines_after_blocks_info = file_content[blocks_info_index + len("Blocks Info:"):].splitlines()[
+                                          1:-1]  # Избавляемся от первой и последней строки после "Blocks Info:"
+                # Инициализация списка для хранения данных блоков
+                blocks_data = []
+                for line in lines_after_blocks_info:
+                    # Пропустить пустые строки
+                    if line.strip():
+                        # Разделить строку по пробелам и добавить данные в список
+                        blocks_data.append(line.strip().split())
 
+                # Теперь в blocks_data содержатся данные блоков
+                print(f"Загружен файл: {file_name}")
+                print("Содержимое файла:")
+
+                for child in globalUi.scrollAreaWidgetContents.findChildren(QtWidgets.QWidget):
+                    child.deleteLater()
+
+                for block in blocks_data:
+                    globalUi.scrollAreaWidgetContents.newBlock = BlockForField(block[0], block[1], block[2], block[3], block[4],
+                                                                        block[5], block[6], block[7], block[8])
+                    globalUi.scrollAreaWidgetContents.newBlock.setGeometry(0, 0, 100, 100)
+                    globalUi.scrollAreaWidgetContents.newBlock.setParent(globalUi.scrollAreaWidgetContents)
+                    globalUi.scrollAreaWidgetContents.newBlock.setStyleSheet("background-color: rgb(0, 170, 255);")
+                    globalUi.scrollAreaWidgetContents.newBlock.show()
+                    print(block)
+
+                MainWindow.needSave = False
+            else:
+                print("Не найдена информация о блоках в файле.")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.fileBarButton.setText(_translate("MainWindow", "Файл"))
         self.optionsBarButton.setText(_translate("MainWindow", "Опции"))
         self.executeBarButton.setText(_translate("MainWindow", "Выполнение"))

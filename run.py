@@ -10,4 +10,5 @@ paths: {str: str} = {
 
 if __name__ == "__main__":
     from python.presentation.MainWindow.MainWindow import execute
+
     execute()
