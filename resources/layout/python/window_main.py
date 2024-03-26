@@ -1,26 +1,22 @@
 import os
-from tkinter import filedialog
-
 import win32api
+from tkinter import filedialog, Tk
+
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import QRect, QSize, Qt, QPoint, QEvent
 from PyQt6.QtGui import QCursor
-from PyQt6.QtWidgets import QApplication, QScrollArea, QMenu, QDialog, QLabel, QPushButton, QLayout, QGridLayout, \
-    QMainWindow
+from PyQt6.QtWidgets import (QApplication, QDialog, QGridLayout, QLabel, QLayout, QMainWindow, QMenu, QPushButton,
+                             QScrollArea)
+
 from python.presentation.MainWindow import MainWindow
 from run import paths
-from PyQt6.QtWidgets import QMainWindow, QDialog, QLabel, QPushButton, QGridLayout
-from PyQt6.QtCore import Qt
-
-from tkinter import *
 
 ui = None
-globalMainWindow = None
 globalMainWindow = None
 globalBlockConstructor = None
 
 
-class block_constructorr(QScrollArea):
+class block_constructorr(QScrollArea): #Класс поля конструктора; для реализации выделителя
     def __init__(self):
         super().__init__()
 
@@ -40,7 +36,7 @@ class block_constructorr(QScrollArea):
             self.origin = None
 
 
-class Ui_MainWindow(object):
+class Ui_MainWindow(object): #Прорисовка всего окна
     def __init__(self):
         global ui
         self.block_constructor = None

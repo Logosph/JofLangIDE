@@ -5,12 +5,10 @@ from resources.layout.python.window_main import *
 from run import paths, path
 from python.domain.blockResources import blocksArray
 
-itsDeleteOperation = False
 savingInvisibleInfo = None
 
 ui = Ui_MainWindow()
-widthFix = 0
-blocksInfo = [[0, 0, "init0"]]
+
 blocksNames = []
 blocksCurrentCout = 0
 lastDraggedBlockName = "init"
@@ -20,7 +18,6 @@ extraWidth = 0
 
 # Элементы интерфейса при запуске записываются сюда, для возможности к ним обращаться
 globalJofLangLogo = None
-globalBlockList = None
 globalBlockConstructor = None
 globalInfoCheckTextArea = None
 globalCurrentBlockInfoTextArea = None
@@ -32,7 +29,7 @@ needSave = False
 notLoading = True
 
 
-class SaveBeforeExitModalWindow(QDialog):
+class SaveBeforeExitModalWindow(QDialog):  # Модальное окно перед выходом из приложения
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Сохранение перед закрытием")
@@ -62,7 +59,7 @@ class SaveBeforeExitModalWindow(QDialog):
 
         self.setLayout(modalLayout)
 
-    def acceptEvent(self):  # При выходе
+    def acceptEvent(self):  # Да, сохранить проект
         global currentProjectFilePath, currentProjectFileName
         if (currentProjectFileName == None):
             currentProjectFilePath = filedialog.asksaveasfilename(defaultextension=".txt",
@@ -79,10 +76,10 @@ class SaveBeforeExitModalWindow(QDialog):
         else:
             self.reject()
 
-    def denyEvent(self):
+    def denyEvent(self):  # Нет, не сохраняем проект
         self.accept()
 
-    def cancelEvent(self):
+    def cancelEvent(self):  # Отмена, не выходим из приложения
         self.reject()
 
 
@@ -97,13 +94,13 @@ class MainWindowC(QMainWindow):
         ElementsHeight = self.height()
 
     def closeEvent(self, event):
-        if MainWindow.needSave:
+        if MainWindow.needSave:  # Вызов модального окна, если проект не сохранён
             modal = SaveBeforeExitModalWindow(self)
             if modal.exec() != QDialog.DialogCode.Accepted:
                 event.ignore()
 
 
-def clicked():
+def clicked():  # Открытие меню по нажатии кнопки "Файл"
     global ui, globalMainWindow
     ui.context_menu = QMenu()
     createProjectAction = ui.context_menu.addAction("Создать")
@@ -125,13 +122,11 @@ def clicked():
     ui.context_menu.exec(point)
 
 
-def createProject():  # Создание нового проекта
+def createProject():  # Создание нового проекта; не доведено до ума
     pass
-    # python = sys.executable
-    # os.execl(python, python, *sys.argv)
 
 
-def saveProject():
+def saveProject():  # Сохранение проекта
     global globalMainWindow, currentProjectFilePath, currentProjectFileName
     printGlobalElements()
     if (currentProjectFileName == None):
@@ -148,33 +143,26 @@ def saveProject():
         print("Сохранено!")
 
 
-def loadProject():
+def loadProject():  # Загрузка проекта
     global globalMainWindow, ui, currentProjectFilePath, currentProjectFileName, notLoading
     currentProjectFilePath = filedialog.askopenfilename(defaultextension=".txt",
                                                         filetypes=[("Text files", "*.txt")])
-    if currentProjectFilePath:  # Проверяем, что пользователь выбрал файл
+    if currentProjectFilePath:
         notLoading = False
         currentProjectFileName = os.path.basename(currentProjectFilePath)
         globalMainWindow.setWindowTitle("JofLang IDE - " + currentProjectFileName.replace(".txt", ""))
         with open(currentProjectFilePath, 'r') as file:
             file_content = file.read()
 
-        # Поиск строки, содержащей "Blocks Info:"
         blocks_info_index = file_content.find("Blocks Info:")
 
-        # Если строка найдена, разделить содержимое файла на строки
         if blocks_info_index != -1:
-            lines_after_blocks_info = file_content[blocks_info_index + len("Blocks Info:"):].splitlines()[
-                                      1:-1]  # Избавляемся от первой и последней строки после "Blocks Info:"
-            # Инициализация списка для хранения данных блоков
+            lines_after_blocks_info = file_content[blocks_info_index + len("Blocks Info:"):].splitlines()[1:-1]
             blocks_data = []
             for line in lines_after_blocks_info:
-                # Пропустить пустые строки
                 if line.strip():
-                    # Разделить строку по пробелам и добавить данные в список
                     blocks_data.append(line.strip().split())
 
-            # Теперь в blocks_data содержатся данные блоков
             print(f"Загружен файл: {currentProjectFileName}")
             print("Содержимое файла:")
 
@@ -216,22 +204,19 @@ def loadProject():
             print("Не найдена информация о блоках в файле.")
 
 
-def execute():
-    global ui, widthFix, globalMainWindow, globalJofLangLogo, globalBlockList, \
+def execute():  # Запуск приложения
+    global ui, globalMainWindow, globalJofLangLogo, \
         globalBlockConstructor, globalInfoCheckTextArea, globalCurrentBlockInfoTextArea
 
     app = QtWidgets.QApplication(sys.argv)
     globalMainWindow = MainWindowC()
     ui.setupUi(globalMainWindow)
     globalJofLangLogo = ui.JofLangLogo
-    globalBlockList = ui.block_list
     globalBlockConstructor = ui.block_constructor
     globalCurrentBlockInfoTextArea = ui.currentBlockInfoTextArea
     ui.block_constructor.rubberBand = QRubberBand(QRubberBand.Shape.Rectangle, ui.block_constructor)
     ui.block_constructor.rubberBand.origin = None
     globalInfoCheckTextArea = ui.allBlocksInfoTextArea
-    widthFix = ui.tableView_6.width() + ui.scrollArea_2.width()
-
     ui.VariablesCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 0))
     ui.OperationsCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 1))
     ui.ControlCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 2))
@@ -255,7 +240,7 @@ freeX = 0
 class BlockForField(QLabel):  # Блок в конструкторе блоков
     def __init__(self, ui, category, styleSheet, blockName):  # Создание блока на поле
         global globalStylesheet, blocksCurrentCout, \
-            lastDraggedBlockName, blocksInfo, consist, globalInfoCheckTextArea, lastDraggedBlockName, needSave
+            lastDraggedBlockName, consist, globalInfoCheckTextArea, lastDraggedBlockName, needSave
         super().__init__()
 
         if needSave:
@@ -306,7 +291,7 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
                 break
             lastDraggedBlockName = self.initName
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event):  # Нажал на блок - включил режим перетаскивания
         global grabber, globalBlockConstructor, lastDraggedBlockName, needSave
         grabber = True
         if needSave:
@@ -326,8 +311,8 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
                     break
         lastDraggedBlockName = self.initName
 
-    def mouseMoveEvent(self, ev):
-        global grabber, widthFix, globalMainWindow, extraHeight, extraWidth, consist, globalBlockConstructor
+    def mouseMoveEvent(self, ev):  # Перетаскивание блока
+        global grabber, globalMainWindow, extraHeight, extraWidth, consist, globalBlockConstructor
 
         if grabber:
             window_pos = globalMainWindow.pos()
@@ -360,7 +345,7 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
 
             printInfoAboutBlock(self)
 
-    def mouseReleaseEvent(self, ev):
+    def mouseReleaseEvent(self, ev):  # Блок "падает", если рядом есть другой - он к нему крепится
         global grabber, lastDraggedBlockX, lastDraggedBlockY, globalBlockConstructor
         grabber = False
 
@@ -402,7 +387,7 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
         printGlobalElements()
 
     def mouseDoubleClickEvent(self, a0):  # Удаление блока с поля
-        global blocksCurrentCout, globalInfoCheckTextArea, lastDraggedBlockName, itsDeleteOperation, needSave, globalBlockConstructor
+        global blocksCurrentCout, globalInfoCheckTextArea, lastDraggedBlockName, needSave, globalBlockConstructor
         if needSave:
             pass
         else:
@@ -430,8 +415,8 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
         printGlobalElements()
 
 
-def printGlobalElements():
-    global globalInfoCheckTextArea, globalBlockConstructor, itsDeleteOperation, savingInvisibleInfo  # , deletingObject
+def printGlobalElements():  # Обновление информации всего проекта
+    global globalInfoCheckTextArea, globalBlockConstructor, savingInvisibleInfo  # , deletingObject
 
     firstBlocks = []
     lastBlocks = []
@@ -533,7 +518,7 @@ def printGlobalElements():
             globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + someString + "\n")
 
 
-class BlockLabel(QPushButton):
+class BlockLabel(QPushButton):  # Кнопки справа
     def __init__(self, blockName, ui, thisStyleSheet, thisCategory):
         super().__init__()
         self.setIcon(QIcon(paths["blocksIcons"] + blockName + ".jpg"))
@@ -545,7 +530,7 @@ class BlockLabel(QPushButton):
         self.setGeometry(300, 300, 300, 300)
         self.clicked.connect(lambda: self.justAClicked(ui))
 
-    def justAClicked(self, ui):
+    def justAClicked(self, ui):  # Нажал на определённый блок - он образовался на поле
         global consist, freeX, needSave
         if needSave:
             pass
@@ -565,7 +550,7 @@ class BlockLabel(QPushButton):
         printGlobalElements()
 
 
-def formatBlocksToCategory(ui, categoryNumber):
+def formatBlocksToCategory(ui, categoryNumber):  # Прорисовка списка блоков
     match categoryNumber:
         case 0:
             ui.categoryName.setText("Переменные")  # Должен определять по нажатию на категорию
@@ -602,7 +587,7 @@ def formatBlocksToCategory(ui, categoryNumber):
         ui.verticalLayout_6.addWidget(BlockLabel(blockName, ui, thisStyleSheet, thisCategory))
 
 
-def printInfoAboutBlock(block):
+def printInfoAboutBlock(block):  # Вывод информации о последнем блоке
     global ui, globalCurrentBlockInfoTextArea
     globalCurrentBlockInfoTextArea.setText("initName - " + block.initName + "\nblockCategory - " + block.blockCategory +
                                            "\nX - " + str(block.x()) + "\nY - " + str(block.y()) +
