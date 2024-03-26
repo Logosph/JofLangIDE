@@ -7,126 +7,15 @@ from PyQt6.QtCore import QRect, QSize, Qt, QPoint, QEvent
 from PyQt6.QtGui import QCursor
 from PyQt6.QtWidgets import QApplication, QScrollArea, QMenu, QDialog, QLabel, QPushButton, QLayout, QGridLayout, \
     QMainWindow
-
 from python.presentation.MainWindow import MainWindow
-#from python.presentation.MainWindow.MainWindow import BlockForField
-
 from run import paths
-
 from PyQt6.QtWidgets import QMainWindow, QDialog, QLabel, QPushButton, QGridLayout
 from PyQt6.QtCore import Qt
 
 from tkinter import *
 
-globalUi = None
+ui = None
 globalMainWindow = None
-
-
-# class BlockForField(QLabel):  # Блок в конструкторе блоков
-#     def __init__(self, initName, category, x, y, blockInChain, inBackInChain, inFrontInChain, blockInBack, blockInFront):
-#         super().__init__()
-#         self.initName = initName
-#         self.blockCategory = category
-#         self.xOnMap = x
-#         self.yOnMap = y
-#         self.blockInChain = blockInChain
-#         self.inBackInChain = inBackInChain
-#         self.inFrontInChain = inFrontInChain
-#         self.blockInBack = blockInBack
-#         self.blockInFront = blockInFront
-#         self.setFixedWidth(175)
-#         self.setFixedHeight(100)
-
-
-class SaveBeforeExitModalWindow(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Сохранение перед закрытием")
-        self.text = QLabel("Сохранить проект перед закрытием приложения?")
-        self.cancelButton = QPushButton("Отмена")
-        self.acceptButton = QPushButton("Да")
-        self.denyButton = QPushButton("Нет")
-
-        self.cancelButton.setMaximumWidth(100)
-        self.acceptButton.setMaximumWidth(100)
-        self.denyButton.setMaximumWidth(100)
-
-        self.acceptButton.clicked.connect(self.acceptEvent)
-        self.denyButton.clicked.connect(self.denyEvent)
-        self.cancelButton.clicked.connect(self.cancelEvent)
-
-        buttonsLayout = QGridLayout()
-        buttonsLayout.addWidget(self.acceptButton, 0, 0)
-        buttonsLayout.addWidget(self.denyButton, 0, 1)
-        buttonsLayout.addWidget(self.cancelButton, 0, 2)
-
-        modalLayout = QGridLayout()
-        modalLayout.addWidget(self.text, 0, 0)
-        modalLayout.addLayout(buttonsLayout, 1, 0)
-
-        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
-
-        self.setLayout(modalLayout)
-
-    def acceptEvent(self):
-        file_path = filedialog.asksaveasfilename(defaultextension=".txt",
-                                                 filetypes=[("Text files", "*.txt")])
-        file_name = os.path.basename(file_path)
-        if file_path:
-            with open(file_path, 'w') as file:
-                savingVisibleProjectInfo = globalUi.allBlocksInfoTextArea.toPlainText()
-                # for child in globalUi.block_constructor.findChildren(QtWidgets.QWidget):
-                #     currentChildInfo = (str(child.initName) + " " +
-                #                         str(child.blockCategory) + " " +
-                #                         str(child.x()) + " " +
-                #                         str(child.y()) + " " +
-                #                         str(child.inChain) + " " +
-                #                         str(child.inChainInBack) + " " +
-                #                         str(child.inChainInFront) + " " +
-                #                         str(child.backBlockInChain) + " " +
-                #                         str(child.frontBlockInChain) + "\n\n")
-                #     savingInvisibleInfo = savingInvisibleInfo + currentChildInfo
-
-                file.write(savingVisibleProjectInfo)
-            globalMainWindow.setWindowTitle("JofLang IDE - " + file_name.replace(".txt", ""))
-            MainWindow.needSave = False
-            print("Сохранено!")
-            self.accept()
-        else:
-            self.reject()
-
-    def denyEvent(self):
-        self.accept()
-
-    def cancelEvent(self):
-        self.reject()
-
-
-class MainWindowC(QMainWindow):
-    def __init__(self):
-        super().__init__()
-
-    def resizeEvent(self, event):
-        global ElementsHeight, ElementsWidth
-
-        ElementsWidth = self.width()
-        ElementsHeight = self.height()
-
-    # def closeEvent(self, event):
-    #     global needSave
-    #     needSave = returnNeedSave()
-    #     if needSave:
-    #         modal = SaveBeforeExitModalWindow(self)
-    #         if modal.exec() != QDialog.DialogCode.Accepted:
-    #             event.ignore()
-
-    def closeEvent(self, event):
-        if MainWindow.needSave:
-            modal = SaveBeforeExitModalWindow(self)
-            if modal.exec() != QDialog.DialogCode.Accepted:
-                event.ignore()
-
-
 globalMainWindow = None
 globalBlockConstructor = None
 
@@ -153,7 +42,7 @@ class block_constructorr(QScrollArea):
 
 class Ui_MainWindow(object):
     def __init__(self):
-        global globalUi
+        global ui
         self.block_constructor = None
         self.iconsDir = paths["icons"]
         globalUi = self
@@ -738,95 +627,6 @@ class Ui_MainWindow(object):
 
         MainWindow.move(width // 2 - window_width // 2, height // 2 - window_height // 2 + 100)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.fileBarButton.clicked.connect(lambda: self.clicked(self, MainWindow))
-
-    def clicked(self, elements, MainWindow):
-        self.context_menu = QMenu()
-        createProjectAction = self.context_menu.addAction("Создать")
-        saveProjectAction = self.context_menu.addAction("Сохранить")
-        loadProjectAction = self.context_menu.addAction("Загрузить")
-
-        window_pos = MainWindow.pos()
-        global_pos = MainWindow.mapToGlobal(window_pos)
-
-        currentX = QCursor.pos().x()
-        currentY = QCursor.pos().y()
-
-        point = QPoint(currentX, currentY)
-
-        createProjectAction.triggered.connect(lambda: self.createProject())
-        saveProjectAction.triggered.connect(lambda: self.saveProject())
-        loadProjectAction.triggered.connect(lambda: self.loadProject())
-
-        self.context_menu.exec(point)
-
-    def createProject(self): #Создание нового проекта
-        global globalMainWindow
-        MainWindow.needSave = False
-        globalMainWindow.setWindowTitle("JofLang IDE - Untitled")
-        for child in globalUi.block_constructor.findChildren(QtWidgets.QWidget):
-            child.deleteLater()
-        globalUi.currentBlockInfoTextArea.clear()
-        globalUi.allBlocksInfoTextArea.clear()
-        print("Создано!")
-
-    def saveProject(self):
-        global globalMainWindow
-        file_path = filedialog.asksaveasfilename(defaultextension=".txt",
-                                                 filetypes=[("Text files", "*.txt")])
-        file_name = os.path.basename(file_path)
-
-        if file_path:
-            with open(file_path, 'w') as file:
-                savingVisibleProjectInfo = globalUi.allBlocksInfoTextArea.toPlainText()
-                file.write(savingVisibleProjectInfo)
-            globalMainWindow.setWindowTitle("JofLang IDE - " + file_name.replace(".txt", ""))
-            MainWindow.needSave = False
-            print("Сохранено!")
-
-    def loadProject(self):
-        global globalMainWindow, globalUi
-        file_path = filedialog.askopenfilename(defaultextension=".txt",
-                                               filetypes=[("Text files", "*.txt")])
-        if file_path:  # Проверяем, что пользователь выбрал файл
-            file_name = os.path.basename(file_path)
-            with open(file_path, 'r') as file:
-                file_content = file.read()
-
-            # Поиск строки, содержащей "Blocks Info:"
-            blocks_info_index = file_content.find("Blocks Info:")
-
-            # Если строка найдена, разделить содержимое файла на строки
-            if blocks_info_index != -1:
-                lines_after_blocks_info = file_content[blocks_info_index + len("Blocks Info:"):].splitlines()[
-                                          1:-1]  # Избавляемся от первой и последней строки после "Blocks Info:"
-                # Инициализация списка для хранения данных блоков
-                blocks_data = []
-                for line in lines_after_blocks_info:
-                    # Пропустить пустые строки
-                    if line.strip():
-                        # Разделить строку по пробелам и добавить данные в список
-                        blocks_data.append(line.strip().split())
-
-                # Теперь в blocks_data содержатся данные блоков
-                print(f"Загружен файл: {file_name}")
-                print("Содержимое файла:")
-
-                for child in globalUi.scrollAreaWidgetContents.findChildren(QtWidgets.QWidget):
-                    child.deleteLater()
-
-                for block in blocks_data:
-                    globalUi.scrollAreaWidgetContents.newBlock = BlockForField(block[0], block[1], block[2], block[3], block[4],
-                                                                        block[5], block[6], block[7], block[8])
-                    globalUi.scrollAreaWidgetContents.newBlock.setGeometry(0, 0, 100, 100)
-                    globalUi.scrollAreaWidgetContents.newBlock.setParent(globalUi.scrollAreaWidgetContents)
-                    globalUi.scrollAreaWidgetContents.newBlock.setStyleSheet("background-color: rgb(0, 170, 255);")
-                    globalUi.scrollAreaWidgetContents.newBlock.show()
-                    print(block)
-
-                MainWindow.needSave = False
-            else:
-                print("Не найдена информация о блоках в файле.")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate

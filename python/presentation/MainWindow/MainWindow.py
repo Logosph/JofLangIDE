@@ -6,12 +6,12 @@ from run import paths, path
 from python.domain.blockResources import blocksArray
 
 itsDeleteOperation = False
-
 savingInvisibleInfo = None
 
 ui = Ui_MainWindow()
 widthFix = 0
 blocksInfo = [[0, 0, "init0"]]
+blocksNames = []
 blocksCurrentCout = 0
 lastDraggedBlockName = "init"
 globalMainWindow = 0
@@ -25,7 +25,195 @@ globalBlockConstructor = None
 globalInfoCheckTextArea = None
 globalCurrentBlockInfoTextArea = None
 
+currentProjectFileName = None
+currentProjectFilePath = None
+
 needSave = False
+notLoading = True
+
+
+class SaveBeforeExitModalWindow(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Сохранение перед закрытием")
+        self.text = QLabel("Сохранить проект перед закрытием приложения?")
+        self.cancelButton = QPushButton("Отмена")
+        self.acceptButton = QPushButton("Да")
+        self.denyButton = QPushButton("Нет")
+
+        self.cancelButton.setMaximumWidth(100)
+        self.acceptButton.setMaximumWidth(100)
+        self.denyButton.setMaximumWidth(100)
+
+        self.acceptButton.clicked.connect(self.acceptEvent)
+        self.denyButton.clicked.connect(self.denyEvent)
+        self.cancelButton.clicked.connect(self.cancelEvent)
+
+        buttonsLayout = QGridLayout()
+        buttonsLayout.addWidget(self.acceptButton, 0, 0)
+        buttonsLayout.addWidget(self.denyButton, 0, 1)
+        buttonsLayout.addWidget(self.cancelButton, 0, 2)
+
+        modalLayout = QGridLayout()
+        modalLayout.addWidget(self.text, 0, 0)
+        modalLayout.addLayout(buttonsLayout, 1, 0)
+
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
+
+        self.setLayout(modalLayout)
+
+    def acceptEvent(self):  # При выходе
+        global currentProjectFilePath, currentProjectFileName
+        if (currentProjectFileName == None):
+            currentProjectFilePath = filedialog.asksaveasfilename(defaultextension=".txt",
+                                                                  filetypes=[("Text files", "*.txt")])
+            currentProjectFileName = os.path.basename(currentProjectFilePath)
+        if currentProjectFilePath:
+            with open(currentProjectFilePath, 'w') as file:
+                savingVisibleProjectInfo = ui.allBlocksInfoTextArea.toPlainText()
+                file.write(savingVisibleProjectInfo)
+            globalMainWindow.setWindowTitle("JofLang IDE - " + currentProjectFileName.replace(".txt", ""))
+            MainWindow.needSave = False
+            print("Сохранено!")
+            self.accept()
+        else:
+            self.reject()
+
+    def denyEvent(self):
+        self.accept()
+
+    def cancelEvent(self):
+        self.reject()
+
+
+class MainWindowC(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+    def resizeEvent(self, event):
+        global ElementsHeight, ElementsWidth
+
+        ElementsWidth = self.width()
+        ElementsHeight = self.height()
+
+    def closeEvent(self, event):
+        if MainWindow.needSave:
+            modal = SaveBeforeExitModalWindow(self)
+            if modal.exec() != QDialog.DialogCode.Accepted:
+                event.ignore()
+
+
+def clicked():
+    global ui, globalMainWindow
+    ui.context_menu = QMenu()
+    createProjectAction = ui.context_menu.addAction("Создать")
+    saveProjectAction = ui.context_menu.addAction("Сохранить")
+    loadProjectAction = ui.context_menu.addAction("Загрузить")
+
+    window_pos = globalMainWindow.pos()
+    global_pos = globalMainWindow.mapToGlobal(window_pos)
+
+    currentX = QCursor.pos().x()
+    currentY = QCursor.pos().y()
+
+    point = QPoint(currentX, currentY)
+
+    createProjectAction.triggered.connect(lambda: createProject())
+    saveProjectAction.triggered.connect(lambda: saveProject())
+    loadProjectAction.triggered.connect(lambda: loadProject())
+
+    ui.context_menu.exec(point)
+
+
+def createProject():  # Создание нового проекта
+    pass
+    # python = sys.executable
+    # os.execl(python, python, *sys.argv)
+
+
+def saveProject():
+    global globalMainWindow, currentProjectFilePath, currentProjectFileName
+    printGlobalElements()
+    if (currentProjectFileName == None):
+        currentProjectFilePath = filedialog.asksaveasfilename(defaultextension=".txt",
+                                                              filetypes=[("Text files", "*.txt")])
+        currentProjectFileName = os.path.basename(currentProjectFilePath)
+
+    if currentProjectFilePath:
+        with open(currentProjectFilePath, 'w') as file:
+            savingVisibleProjectInfo = ui.allBlocksInfoTextArea.toPlainText()
+            file.write(savingVisibleProjectInfo)
+        globalMainWindow.setWindowTitle("JofLang IDE - " + currentProjectFileName.replace(".txt", ""))
+        MainWindow.needSave = False
+        print("Сохранено!")
+
+
+def loadProject():
+    global globalMainWindow, ui, currentProjectFilePath, currentProjectFileName, notLoading
+    currentProjectFilePath = filedialog.askopenfilename(defaultextension=".txt",
+                                                        filetypes=[("Text files", "*.txt")])
+    if currentProjectFilePath:  # Проверяем, что пользователь выбрал файл
+        notLoading = False
+        currentProjectFileName = os.path.basename(currentProjectFilePath)
+        globalMainWindow.setWindowTitle("JofLang IDE - " + currentProjectFileName.replace(".txt", ""))
+        with open(currentProjectFilePath, 'r') as file:
+            file_content = file.read()
+
+        # Поиск строки, содержащей "Blocks Info:"
+        blocks_info_index = file_content.find("Blocks Info:")
+
+        # Если строка найдена, разделить содержимое файла на строки
+        if blocks_info_index != -1:
+            lines_after_blocks_info = file_content[blocks_info_index + len("Blocks Info:"):].splitlines()[
+                                      1:-1]  # Избавляемся от первой и последней строки после "Blocks Info:"
+            # Инициализация списка для хранения данных блоков
+            blocks_data = []
+            for line in lines_after_blocks_info:
+                # Пропустить пустые строки
+                if line.strip():
+                    # Разделить строку по пробелам и добавить данные в список
+                    blocks_data.append(line.strip().split())
+
+            # Теперь в blocks_data содержатся данные блоков
+            print(f"Загружен файл: {currentProjectFileName}")
+            print("Содержимое файла:")
+
+            for child in ui.scrollAreaWidgetContents.findChildren(QtWidgets.QWidget):
+                child.deleteLater()
+
+            for block in blocks_data:
+                ui.scrollAreaWidgetContents.newBlock = BlockForField(ui, "", "",
+                                                                     "")
+                ui.scrollAreaWidgetContents.newBlock.setParent(ui.scrollAreaWidgetContents)
+                ui.scrollAreaWidgetContents.newBlock.initName = block[0]
+                ui.scrollAreaWidgetContents.newBlock.blockCategory = block[1]
+                ui.scrollAreaWidgetContents.newBlock.move(int(block[2]), int(block[3]))
+                ui.scrollAreaWidgetContents.newBlock.blockInChain = block[4]
+                ui.scrollAreaWidgetContents.newBlock.inBackInChain = block[5]
+                ui.scrollAreaWidgetContents.newBlock.inFrontInChain = block[6]
+                ui.scrollAreaWidgetContents.newBlock.blockInBack = block[7]
+                ui.scrollAreaWidgetContents.newBlock.blockInFront = block[8]
+                ui.scrollAreaWidgetContents.newBlock.setFixedWidth(175)
+                ui.scrollAreaWidgetContents.newBlock.setFixedHeight(100)
+
+                blockImageLink = block[0]
+                blockImageLink = blockImageLink[:-1]
+
+                pixmap = QPixmap(paths["blocksIcons"] + str(blockImageLink))
+                pixmap = pixmap.scaled(int(ui.scrollAreaWidgetContents.newBlock.width()),
+                                       int(ui.scrollAreaWidgetContents.newBlock.height()))
+
+                ui.scrollAreaWidgetContents.newBlock.setPixmap(pixmap)
+
+                ui.scrollAreaWidgetContents.newBlock.setStyleSheet("background-color: rgb(0, 170, 255);")
+                ui.scrollAreaWidgetContents.newBlock.show()
+                print(block)
+
+            MainWindow.needSave = False
+            printGlobalElements()
+            notLoading = True
+        else:
+            print("Не найдена информация о блоках в файле.")
 
 
 def execute():
@@ -51,6 +239,8 @@ def execute():
     ui.SchemaCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 4))
     ui.SpecialCategoryButton.clicked.connect(lambda: formatBlocksToCategory(ui, 5))
 
+    ui.fileBarButton.clicked.connect(lambda: clicked())
+
     formatBlocksToCategory(ui, 0)  # Метод, что прорисовывает текущий список блоков
 
     globalMainWindow.show()
@@ -71,8 +261,11 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
         if needSave:
             pass
         else:
-            needSave = True
-            globalMainWindow.setWindowTitle(globalMainWindow.windowTitle() + "*")
+            if notLoading:
+                needSave = True
+                globalMainWindow.setWindowTitle(globalMainWindow.windowTitle() + "*")
+            else:
+                pass
 
         self.inChainInFront = False
         self.inChainInBack = False
@@ -89,7 +282,12 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
         self.yOnMap = self.y()  # Для сохранённых проектов
         self.name = blockName
         self.initName = blockName + str(blocksCurrentCout)
-        self.setText(self.name)
+        if self.initName in blocksNames:
+            self.initName = blockName + str(blocksCurrentCout + 1)
+            blocksNames.append(self.initName)
+        else:
+            blocksNames.append(self.initName)
+        self.setText(self.initName)
         pixmap = QPixmap(QPixmap(paths["blocksIcons"] + self.name + ".jpg"))
         self.setFixedWidth(175)
         self.setFixedHeight(100)
@@ -103,25 +301,10 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
 
         blocks = globalBlockConstructor.findChildren(BlockForField)
         for block in blocks:
-            if block.name == lastDraggedBlockName:
+            if block.initName == lastDraggedBlockName:
                 block.setStyleSheet(block.defaultStyleSheet)
                 break
-            lastDraggedBlockName = self.name
-
-    # def __init__(self, initName, category, x, y, blockInChain, inBackInChain, inFrontInChain, blockInBack, blockInFront):
-    #     super().__init__()
-    #     self.initName = initName
-    #     self.blockCategory = category
-    #     self.xOnMap = x
-    #     self.yOnMap = y
-    #     self.blockInChain = blockInChain
-    #     self.inBackInChain = inBackInChain
-    #     self.inFrontInChain = inFrontInChain
-    #     self.blockInBack = blockInBack
-    #     self.blockInFront = blockInFront
-    #     self.setFixedWidth(175)
-    #     self.setFixedHeight(100)
-
+            lastDraggedBlockName = self.initName
 
     def mousePressEvent(self, event):
         global grabber, globalBlockConstructor, lastDraggedBlockName, needSave
@@ -135,13 +318,13 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
         printInfoAboutBlock(self)
         self.setStyleSheet(self.selectedStyleSheet)
 
-        if lastDraggedBlockName != self.name:
+        if lastDraggedBlockName != self.initName:
             blocks = globalBlockConstructor.findChildren(BlockForField)
             for block in blocks:
-                if block.name == lastDraggedBlockName:
+                if block.initName == lastDraggedBlockName:
                     block.setStyleSheet(block.defaultStyleSheet)
                     break
-        lastDraggedBlockName = self.name
+        lastDraggedBlockName = self.initName
 
     def mouseMoveEvent(self, ev):
         global grabber, widthFix, globalMainWindow, extraHeight, extraWidth, consist, globalBlockConstructor
@@ -160,11 +343,11 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
             blocks = globalBlockConstructor.findChildren(BlockForField)
 
             for block in blocks:
-                if block.name == self.backBlockInChain:
+                if block.initName == self.backBlockInChain:
                     block.inChainInBack = False
                     block.frontBlockInChain = None
                     block.inChain = False
-                if block.name == self.frontBlockInChain:
+                if block.initName == self.frontBlockInChain:
                     block.inChainInFront = False
                     block.backBlockInChain = None
                     block.inChain = False
@@ -193,9 +376,9 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
                         if self.inChain == True:
                             self.inChainInBack = False
                             self.inChainInFront = False
-                        self.frontBlockInChain = button.name
-                        button.backBlockInChain = self.name
-                        self.move(button.x(), button.y() - 100)
+                        self.frontBlockInChain = button.initName
+                        button.backBlockInChain = self.initName
+                        self.move(button.x(), button.y() - 100 + 20)
                         self.inChain = True
                         self.inChainInBack = True
                         button.inChain = True
@@ -206,8 +389,8 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
                             if self.inChain == True:
                                 self.inChainInFront = False
                                 self.inChainInBack = False
-                            self.backBlockInChain = button.name
-                            button.frontBlockInChain = self.name
+                            self.backBlockInChain = button.initName
+                            button.frontBlockInChain = self.initName
                             self.move(button.x(), button.y() + button.height() - 20)
                             self.inChain = True
                             self.inChainInFront = True
@@ -219,24 +402,31 @@ class BlockForField(QLabel):  # Блок в конструкторе блоко�
         printGlobalElements()
 
     def mouseDoubleClickEvent(self, a0):  # Удаление блока с поля
-        global blocksCurrentCout, globalInfoCheckTextArea, lastDraggedBlockName, itsDeleteOperation, needSave  # , deletingObject
+        global blocksCurrentCout, globalInfoCheckTextArea, lastDraggedBlockName, itsDeleteOperation, needSave, globalBlockConstructor
         if needSave:
             pass
         else:
             needSave = True
             globalMainWindow.setWindowTitle(globalMainWindow.windowTitle() + "*")
         blocksCurrentCout = blocksCurrentCout - 1
+        blocks = globalBlockConstructor.findChildren(BlockForField)
+        for block in blocks:
+            if block.inChain:
+                if self.backBlockInChain == block.initName:
+                    block.frontBlockInChain = None
+                    block.inChainInBack = False
+                if self.frontBlockInChain == block.initName:
+                    block.backBlockInChain = None
+                    block.inChainInFront = False
+
+        for block in blocks:
+            if (block.inChain & ((self.backBlockInChain == None) & (self.frontBlockInChain == None))):
+                block.inChain = False
+
         self.deleteLater()
         globalCurrentBlockInfoTextArea.setText(None)
 
-        if lastDraggedBlockName != self.name:
-            blocks = globalBlockConstructor.findChildren(BlockForField)
-            for block in blocks:
-                if block.name == lastDraggedBlockName:
-                    block.setStyleSheet(block.defaultStyleSheet)
-                    break
-
-        lastDraggedBlockName = self.name
+        lastDraggedBlockName = self.initName
         printGlobalElements()
 
 
@@ -257,15 +447,15 @@ def printGlobalElements():
     for block in allBlocks:
         if block.inChain:
             if (block.inChainInBack & block.inChainInFront):
-                promejBlocks.append(block.name)
+                promejBlocks.append(block.initName)
             else:
                 if block.inChainInBack:
-                    firstBlocks.append(block.name)
+                    firstBlocks.append(block.initName)
                 if block.inChainInFront:
-                    lastBlocks.append(block.name)
+                    lastBlocks.append(block.initName)
 
         else:
-            radicalBlocks.append(block.name)
+            radicalBlocks.append(block.initName)
 
         currentBlockInfo = ("\t" + str(block.initName) + " " +
                             str(block.blockCategory) + " " +
@@ -303,7 +493,8 @@ def printGlobalElements():
     for i in radicalBlocks:
         someString = someString + "          " + i + "\n"
 
-    globalInfoCheckTextArea.setText(globalInfoCheckTextArea.toPlainText() + someString + "\n" + "Blocks Info:\n" + savingInvisibleInfo)
+    globalInfoCheckTextArea.setText(
+        globalInfoCheckTextArea.toPlainText() + someString + "\n" + "Blocks Info:\n" + savingInvisibleInfo)
 
     if len(firstBlocks) > 0:
         for i in range(len(firstBlocks)):
@@ -413,7 +604,7 @@ def formatBlocksToCategory(ui, categoryNumber):
 
 def printInfoAboutBlock(block):
     global ui, globalCurrentBlockInfoTextArea
-    globalCurrentBlockInfoTextArea.setText("initName - " + block.name + "\nblockCategory - " + block.blockCategory +
+    globalCurrentBlockInfoTextArea.setText("initName - " + block.initName + "\nblockCategory - " + block.blockCategory +
                                            "\nX - " + str(block.x()) + "\nY - " + str(block.y()) +
                                            "\ninChain - " + str(block.inChain) +
                                            "\ninChainInBack - " + str(
